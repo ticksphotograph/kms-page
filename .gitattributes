@@ -1,0 +1,7 @@
+# 默认做换行规范化（HTML/CSS/JS 用 LF 都无所谓）
+* text=auto
+
+# 但 .bat 必须保留 CRLF：cmd 的 goto/标签在纯 LF 下可能失效，
+# 从 GitHub 下载 ZIP 后双击运行会出问题，所以按二进制处理，不做任何转换。
+*.bat -text
+*.bat binary
