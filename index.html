@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<!-- 内网 KMS 激活 · 纯静态版
+     全站就这几个文件：index.html（页面+样式+脚本）、config.js（唯一配置入口）、
+     favicon.svg（图标）、404.html（兜底页）。
+     没有任何后端请求、没有任何图片，双击 index.html 可直接打开，也可以整目录丢到任意静态托管
+     （Nginx / GitHub Pages / 对象存储）——保持相对路径不变即可。 -->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#080a0e">
+<meta name="description" content="内网 KMS 激活指引 · 纯静态页面，选好产品即复制命令或下载 .bat">
+<title>内网 KMS 激活</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<style>
+/* =========================================================
+   WebKMS · 编辑器风（terminal / code editor）
+   深色扁平、等宽字、细边框；无图片、无渐变按钮、无光晕
+   ========================================================= */
+:root{
+  --bg:#080a0e;
+  --panel:#0d1117;
+  --panel-2:#0f141b;
+  --code-bg:#080b10;
+  --ink:#d7e0ec;
+  --ink-2:#8e9bad;
+  --ink-3:#5e6b7c;
+  --line:rgba(255,255,255,.085);
+  --line-2:rgba(255,255,255,.16);
+  --accent:#7dd3fc;
+  --accent-dim:rgba(125,211,252,.10);
+  --ok:#7ee787;
+  --warn:#ffab70;
+  --radius:8px;
+  --shadow:0 22px 44px -30px #000;
+  --font-body:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;
+  --mono:ui-monospace,SFMono-Regular,'Cascadia Code',Consolas,'Liberation Mono',Menlo,monospace;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; min-height:100vh; display:flex; flex-direction:column;
+  background-color:var(--bg);
+  /* 只有一层极淡的顶部环境光，像编辑器窗口的暗角 */
+  background-image:radial-gradient(80% 50% at 50% -18%, rgba(125,211,252,.07), transparent 62%);
+  background-repeat:no-repeat;
+  color:var(--ink); line-height:1.65; font-family:var(--font-body);
+  -webkit-font-smoothing:antialiased; overflow-x:hidden;
+}
+::selection{background:rgba(125,211,252,.22); color:#fff}
+main{flex:1 0 auto; display:flex; flex-direction:column; justify-content:flex-start; padding:18px 0 36px}
+
+/* ---------- 顶部导航 ---------- */
+.nav{
+  height:56px; position:sticky; top:0; z-index:50;
+  background:rgba(10,13,18,.92); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);
+}
+.nav-inner{
+  max-width:1100px; margin:0 auto; height:100%; padding:0 24px;
+  display:flex; align-items:center; justify-content:space-between; gap:20px;
+}
+.logo{
+  display:flex; align-items:center; gap:9px; color:var(--ink); text-decoration:none;
+  font-weight:600; font-size:15px; letter-spacing:.3px;
+}
+.logo-mark{
+  width:26px; height:26px; border-radius:6px; flex:none;
+  border:1px solid rgba(125,211,252,.45); background:var(--accent-dim); color:var(--accent);
+  display:grid; place-items:center; font-family:var(--mono); font-size:13px; font-weight:700;
+}
+.nav-chip{
+  display:inline-flex; align-items:center; gap:6px; padding:2px 9px; border-radius:6px;
+  font-family:var(--mono); font-size:11.5px; color:var(--ink-2);
+  border:1px solid var(--line-2); background:var(--panel-2);
+}
+.nav-chip .dot{width:5px; height:5px; border-radius:50%; background:var(--ok); flex:none}
+
+/* ---------- 公告条 ---------- */
+.banner{
+  width:700px; max-width:calc(100% - 32px); margin:20px auto 0; padding:10px 12px;
+  background:var(--panel); border:1px solid var(--line-2); border-left:2px solid rgba(125,211,252,.55);
+  border-radius:var(--radius); color:var(--ink-2); font-size:12.5px;
+  display:flex; align-items:center; gap:9px;
+}
+.banner .ico{
+  width:18px; height:18px; border-radius:4px; flex:none; border:1px solid rgba(125,211,252,.4);
+  color:var(--accent); background:var(--accent-dim);
+  display:grid; place-items:center; font-family:var(--mono); font-size:11px; font-weight:700;
+}
+.banner .txt{flex:1}
+.banner .x{
+  border:0; background:none; color:var(--ink-3); cursor:pointer; font-size:16px; line-height:1;
+  padding:2px 6px; border-radius:4px; transition:.15s;
+}
+.banner .x:hover{background:rgba(255,255,255,.06); color:var(--ink)}
+
+/* ---------- 标题区：一行命令行提示符 ---------- */
+.hero{text-align:center; padding:32px 20px 0}
+.kicker{
+  display:inline-flex; align-items:center; gap:4px; margin-bottom:10px;
+  font-family:var(--mono); font-size:12px; color:var(--ink-3); letter-spacing:.3px;
+}
+.kicker::before{content:'$'; color:rgba(125,211,252,.75); margin-right:2px}
+.kicker::after{
+  content:''; display:inline-block; width:7px; height:13px; margin-left:3px;
+  background:rgba(125,211,252,.7); animation:caret 1.1s steps(1) infinite;
+}
+@keyframes caret{0%,49%{opacity:.85}50%,100%{opacity:0}}
+h1{
+  margin:0 0 10px; font-size:clamp(28px,4.6vw,42px); font-weight:700;
+  letter-spacing:.5px; color:#e8eef7;
+}
+.hero-sub{margin:0 0 10px; font-size:12.5px; color:var(--ink-2)}
+.status{font-family:var(--mono); font-size:12px; color:var(--ink-3)}
+.status .num{color:var(--ink); font-weight:700; font-variant-numeric:tabular-nums}
+.status .tag{
+  display:inline-block; margin-left:8px; padding:1px 7px; border-radius:5px;
+  background:rgba(126,231,135,.10); border:1px solid rgba(126,231,135,.34); color:var(--ok);
+  font-size:11.5px;
+}
+
+/* ---------- 步骤指示器：命令行里的 [1] [2] [3] ---------- */
+.steps-indicator{display:flex; align-items:flex-start; justify-content:center; margin:22px 0 18px; padding:0 20px}
+.step{
+  display:flex; flex-direction:column; align-items:center; gap:7px; min-width:70px;
+  border:0; background:none; padding:0; font:inherit; color:inherit; cursor:default;
+}
+.step-circle{
+  height:26px; padding:0 7px; border-radius:5px; flex:none;
+  border:1px solid var(--line-2); background:var(--panel-2); color:var(--ink-3);
+  display:inline-flex; align-items:center; gap:3px;
+  font-family:var(--mono); font-size:12px; font-weight:700;
+  transition:border-color .15s, color .15s, background .15s;
+}
+.step-circle::before{content:'['; color:var(--ink-3); font-weight:400}
+.step-circle::after{content:']'; color:var(--ink-3); font-weight:400}
+.step-label{font-size:11.5px; color:var(--ink-3); transition:color .15s; white-space:nowrap}
+.step.active .step-circle{border-color:rgba(125,211,252,.55); background:var(--accent-dim); color:var(--accent)}
+.step.active .step-circle::before,.step.active .step-circle::after{color:rgba(125,211,252,.6)}
+.step.active .step-label{color:var(--accent)}
+.step.completed{cursor:pointer}
+.step.completed .step-circle{border-color:rgba(126,231,135,.3); background:rgba(126,231,135,.07); color:var(--ok)}
+.step.completed:hover .step-circle{border-color:rgba(126,231,135,.55)}
+.step-line{
+  width:44px; height:1px; margin-top:13px; flex:none;
+  background:repeating-linear-gradient(90deg,var(--line-2) 0 4px,transparent 4px 8px);
+}
+.step-line.active{background:repeating-linear-gradient(90deg,rgba(125,211,252,.5) 0 4px,transparent 4px 8px)}
+
+/* ---------- 选择区 ---------- */
+.picker{width:700px; max-width:calc(100% - 40px); margin:0 auto; display:flex; flex-direction:column; gap:10px}
+.field{position:relative; display:block}
+.field.hide{display:none}
+.field select{
+  width:100%; height:44px; padding:0 40px 0 13px; font:inherit; font-size:14px; color:var(--ink);
+  background:var(--panel); border:1px solid var(--line-2); border-radius:var(--radius); outline:none;
+  appearance:none; -webkit-appearance:none; cursor:pointer;
+  transition:border-color .15s, box-shadow .15s;
+}
+.field select:hover{border-color:rgba(125,211,252,.45)}
+.field select:focus{border-color:rgba(125,211,252,.6); box-shadow:0 0 0 3px rgba(125,211,252,.10)}
+.field select.placeholder{color:var(--ink-3)}
+.field select option{background:#0f141b; color:var(--ink)}
+/* 纯 CSS 下拉箭头 */
+.field::after{
+  content:''; position:absolute; right:15px; top:50%; width:8px; height:8px;
+  border-right:1.5px solid var(--ink-3); border-bottom:1.5px solid var(--ink-3);
+  transform:translateY(-70%) rotate(45deg); pointer-events:none; transition:border-color .15s;
+}
+.field:hover::after{border-color:var(--accent)}
+
+/* ---------- 完整版下载 ---------- */
+.allinone{width:700px; max-width:calc(100% - 40px); margin:12px auto 0; text-align:center}
+.link-btn{
+  appearance:none; border:0; background:none; padding:4px 6px; font:inherit;
+  font-family:var(--mono); font-size:12px; color:var(--accent); cursor:pointer;
+  text-decoration:underline dotted; text-underline-offset:4px; border-radius:4px;
+}
+.link-btn:hover{color:#a9e2fd}
+.link-btn:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+
+/* ---------- 结果：一个代码编辑器窗口 ---------- */
+.result{
+  width:700px; max-width:calc(100% - 40px); min-width:0; margin:16px auto 0;
+  background:var(--panel); border:1px solid var(--line-2); border-radius:10px;
+  overflow:hidden; box-shadow:var(--shadow);
+}
+.result[hidden]{display:none}
+.r-bar{
+  display:flex; align-items:center; gap:6px; padding:8px 12px;
+  background:#0b0f15; border-bottom:1px solid var(--line);
+}
+.r-bar .dot{width:9px; height:9px; border-radius:50%; background:#232d3a; border:1px solid rgba(255,255,255,.05); flex:none}
+.r-bar .r-file{
+  margin-left:8px; flex:1; min-width:0;
+  font-family:var(--mono); font-size:11.5px; color:var(--ink-3);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.r-bar .btn{height:26px; padding:0 10px; font-size:11.5px; border-radius:6px}
+.r-body{padding:16px}
+.r-head{display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:12px}
+.r-title{margin:0 0 2px; font-size:15px; font-weight:700; color:#e8eef7}
+.r-path{font-family:var(--mono); font-size:11.5px; color:var(--ink-3)}
+.r-path b{color:var(--ink-2); font-weight:600}
+
+.btn{
+  appearance:none; border:1px solid var(--line-2); background:var(--panel-2); color:var(--ink);
+  height:32px; padding:0 13px; border-radius:6px; font:inherit; font-size:12.5px;
+  cursor:pointer; transition:border-color .15s, background .15s, color .15s; white-space:nowrap;
+}
+.btn:hover{border-color:rgba(255,255,255,.28); background:#151b23}
+.btn:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.btn-primary{background:#238636; border-color:#2ea043; color:#fff; font-weight:600}
+.btn-primary:hover{background:#2ea043; border-color:#3fb950; color:#fff}
+.btn-primary.ok{background:#1f6f3f; border-color:#2ea043}
+
+/* 命令代码块：朴素——平底、细边、桌面横向滚动不折行 */
+pre{
+  margin:0; padding:13px 15px; overflow:auto; max-width:100%;
+  background:var(--code-bg); color:#c8d3e0;
+  border:1px solid var(--line); border-radius:var(--radius);
+  font-size:12.5px; line-height:1.75; tab-size:2;
+  white-space:pre; font-family:var(--mono);
+}
+.r-actions{display:flex; align-items:center; gap:9px; margin-top:12px; flex-wrap:wrap}
+.r-cmd-tip{margin-top:10px; font-size:11.5px; color:var(--ink-2); line-height:1.7}
+.r-cmd-tip code{
+  font-family:var(--mono); font-size:11px; background:var(--accent-dim); color:var(--accent);
+  padding:1px 5px; border-radius:4px; margin:0 3px;
+}
+.r-sub{margin-top:8px; font-size:11.5px; color:var(--ink-3); line-height:1.65}
+.note{
+  margin-top:11px; padding:9px 12px; border-radius:6px; font-size:11.5px;
+  background:var(--accent-dim); border:1px solid rgba(125,211,252,.22);
+  border-left:2px solid rgba(125,211,252,.6); color:#a8d8f5;
+}
+.note.warn-note{background:rgba(255,171,112,.07); border-color:rgba(255,171,112,.28); color:var(--warn)}
+
+/* ---------- 页脚 ---------- */
+footer{
+  flex:none; padding:22px 24px 18px; margin-top:40px; font-size:11.5px; color:var(--ink-3);
+  border-top:1px solid var(--line); background:#0a0d12;
+}
+.f-inner{max-width:1000px; margin:0 auto}
+.f-brand{display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:11px}
+.f-brand .f-mark{
+  width:20px; height:20px; border-radius:5px; flex:none;
+  border:1px solid rgba(125,211,252,.4); background:var(--accent-dim); color:var(--accent);
+  display:grid; place-items:center; font-family:var(--mono); font-size:11px; font-weight:700;
+}
+.f-brand .f-name{font-size:12.5px; color:var(--ink-2); letter-spacing:.3px}
+.f-bottom{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  border-top:1px solid var(--line); padding-top:12px; flex-wrap:wrap; text-align:left;
+  font-family:var(--mono);
+}
+.f-bottom b{color:var(--ink-2); font-weight:700}
+
+/* ---------- 响应式 / 动效降级 ---------- */
+@media (prefers-reduced-motion: reduce){
+  *{transition-duration:.01ms !important; animation:none !important}
+}
+@media (max-width:640px){
+  h1{font-size:25px}
+  .hero{padding-top:24px}
+  .hero-sub{font-size:12px}
+  .nav-chip{font-size:11px; padding:2px 7px}
+  .logo{font-size:14px}
+  .banner{margin-left:16px; margin-right:16px; font-size:12px}
+  .step{min-width:58px}
+  .step-circle{height:24px; font-size:11px; padding:0 5px}
+  .step-label{font-size:11px}
+  .step-line{width:22px; margin-top:12px}
+  .field select{height:42px; font-size:13.5px}
+  .r-body{padding:13px}
+  .r-title{font-size:14px}
+  /* 窄屏下让长命令折行显示，避免关键参数被裁掉（复制仍是原文，不含软换行） */
+  pre{white-space:pre-wrap; overflow-wrap:anywhere; font-size:11px; line-height:1.7}
+  footer{margin-top:30px}
+  .f-bottom{justify-content:center; text-align:center}
+}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <a class="logo" href="#"><span class="logo-mark">K</span>内网激活</a>
+    <span class="nav-chip"><i class="dot"></i>纯静态 · 离线可用</span>
+  </div>
+</header>
+
+<main>
+  <div class="banner" id="banner">
+    <span class="ico">!</span>
+    <span class="txt" id="bannerTxt">仅用于组织内部已获微软批量授权的设备；页内命令用于连接组织自建的 KMS 主机。</span>
+    <button class="x" id="bannerClose" type="button" aria-label="关闭">×</button>
+  </div>
+
+  <section class="hero" id="wizard">
+    <div class="kicker">~/kms</div>
+    <h1>内网 KMS 激活</h1>
+    <p class="hero-sub">三步选好产品，复制命令或下载 .bat，一次搞定授权</p>
+    <div class="status">今日生成 <span class="num" id="todayCount">0</span> 次<span class="tag">已就绪</span></div>
+  </section>
+
+  <div class="steps-indicator" id="steps">
+    <button class="step" type="button" data-step="1" data-num="1" aria-disabled="true">
+      <span class="step-circle">1</span><span class="step-label">选择类型</span>
+    </button>
+    <span class="step-line" data-line="1"></span>
+    <button class="step" type="button" data-step="2" data-num="2" aria-disabled="true">
+      <span class="step-circle">2</span><span class="step-label">选择版本</span>
+    </button>
+    <span class="step-line" data-line="2"></span>
+    <button class="step" type="button" data-step="3" data-num="3" aria-disabled="true">
+      <span class="step-circle">3</span><span class="step-label">选择产品</span>
+    </button>
+  </div>
+
+  <div class="picker">
+    <label class="field">
+      <select id="sel1" aria-label="选择类型">
+        <option value="">请选择类型</option>
+      </select>
+    </label>
+
+    <label class="field hide" id="field2">
+      <select id="sel2" aria-label="选择版本"><option value="">请选择版本</option></select>
+    </label>
+
+    <label class="field hide" id="field3">
+      <select id="sel3" aria-label="选择产品"><option value="">请选择产品</option></select>
+    </label>
+  </div>
+
+  <div class="allinone">
+    <button class="link-btn" id="btnAll" type="button">不想一个个选？下载完整版 .bat（含全部产品，双击后菜单里挑）</button>
+  </div>
+
+  <section class="result" id="result" hidden>
+    <div class="r-bar">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="r-file">kms — 命令</span>
+      <button class="btn" id="btnReset" type="button">重新选择</button>
+    </div>
+    <div class="r-body">
+      <div class="r-head">
+        <div>
+          <h2 class="r-title" id="rName">—</h2>
+          <div class="r-path" id="rPath"></div>
+        </div>
+      </div>
+      <pre id="rCode"></pre>
+      <div class="r-cmd-tip" id="rCmdTip"></div>
+      <div class="r-actions">
+        <button class="btn btn-primary" id="btnCopy" type="button">复制命令</button>
+        <button class="btn" id="btnBat" type="button">下载 .bat 文件</button>
+      </div>
+      <div class="r-sub" id="rSub">不会用命令行？下载后直接双击，会弹一次「用户账户控制」，点「是」即以管理员身份运行。浏览器若提示「文件不常见」，点「保留」即可。</div>
+      <div class="note" id="rNote" hidden></div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="f-inner">
+    <div class="f-brand"><span class="f-mark">K</span><span class="f-name">内网激活 · 静态版</span></div>
+    <div class="f-bottom">
+      <span><b>内网激活</b> · 仅限组织内部使用</span>
+      <span>纯静态页面 · 无后端依赖，双击 index.html 也能用</span>
+    </div>
+  </div>
+</footer>
+
+<script src="config.js"></script>
+
+<script>
+/* 字符 → GBK 码表：下载 .bat 时用，脚本生成，勿手改 */
+var GBK_CHARS = "字符→码表：下载时用，脚本生成勿手改配置全部放在同目录的里这只负责读取不要。没加功（比如忘了一起拷）回落到默认值页面照常能命令模板客户端与服务器都是套抽两个函数多产品就各抄遍长串会被替换地址对应密钥必须执行而安装路径有种可所以第写死条探测由提供据来自段文件再内嵌增删类型版补齐决定还动逻辑顶访无需填直接上；返空继续显示占位进场画统走合层「」那强制步重排法先按终态帧播看去闪顿今日计公告案别说含性警请确它和且组错仅于织已获微软批量授权设备带把外传骤指拉充选择明代框留粘复管理员中贴次前找机几跳过联系结果卡视口方才滚等完避免抢失败处解析乱实后某些汉整效节张做转收原样缺少变新运真仍注释掉否则拿着假徒报并你申限弹窗点经跑己正身份启…出账控关为右键得开始也激活话记事打毕容截图给任意闭名短例专业、末尾年菜单共跟格算宽度保证列网工具主退输入编号车子每块检查双击即·★存刷怎么？副标题随便但缀建议简大或×顺序判断哪切靠—够①斜杠②最见媒体作站教育企期准心状详细信息剩余间许连清除卸啊阿埃挨哎唉哀皑癌蔼矮艾碍爱隘鞍氨俺暗岸胺肮昂盎凹敖熬翱袄傲奥懊澳芭捌扒叭吧笆八疤巴拔跋靶耙坝霸罢爸白柏百摆佰拜稗斑班搬扳般颁扮拌伴瓣半办绊邦帮梆榜膀绑棒磅蚌镑傍谤苞胞包褒剥薄雹堡饱宝抱暴豹鲍爆杯碑悲卑北辈背贝钡倍狈惫焙奔苯笨崩绷甭泵蹦迸逼鼻鄙笔彼碧蓖蔽毙毖币庇痹敝弊辟壁臂陛鞭边贬扁卞辨辩辫彪膘鳖憋瘪彬斌濒滨宾摈兵冰柄丙秉饼炳病玻菠拨钵波博勃搏铂箔伯帛舶脖膊渤泊驳捕卜哺埠布簿怖擦猜裁材财睬踩采彩蔡餐参蚕残惭惨灿苍舱仓沧藏操糙槽曹草厕策侧册蹭插叉茬茶碴搽察岔差诧拆柴豺搀掺蝉馋谗缠铲阐颤昌猖尝偿肠厂敞畅唱倡超钞朝嘲潮巢吵炒扯撤掣彻澈郴臣辰尘晨忱沉陈趁衬撑称城橙呈乘程惩澄诚承逞骋秤吃痴持匙池迟弛驰耻齿侈尺赤翅斥炽冲虫崇宠酬畴踌稠愁筹仇绸瞅丑臭初橱厨躇锄雏滁楚础储矗搐触揣川穿椽船喘疮幢床闯创吹炊捶锤垂春椿醇唇淳纯蠢戳绰疵茨磁雌辞慈瓷词此刺赐聪葱囱匆从丛凑粗醋簇促蹿篡窜摧崔催脆瘁粹淬翠村寸磋撮搓措挫搭达答瘩呆歹傣戴殆贷袋待逮怠耽担丹郸掸胆旦氮惮淡诞蛋当挡党荡档刀捣蹈倒岛祷导稻悼道盗德蹬灯登瞪凳邓堤低滴迪敌笛狄涤翟嫡抵底蒂帝弟递缔颠掂滇碘典靛垫电佃甸店惦奠淀殿碉叼雕凋刁吊钓调跌爹碟蝶迭谍叠丁盯叮钉鼎锭订丢东冬董懂栋侗恫冻洞兜抖斗陡豆逗痘督毒犊独堵睹赌杜镀肚渡妒锻缎堆兑队墩吨蹲敦囤钝盾遁掇哆夺垛躲朵跺舵剁惰堕蛾峨鹅俄额讹娥恶厄扼遏鄂饿恩儿耳尔饵洱二贰发罚筏伐乏阀珐藩帆番翻樊矾钒繁凡烦反范贩犯饭泛坊芳肪房防妨仿纺菲非啡飞肥匪诽吠肺废沸费芬酚吩氛分纷坟焚汾粉奋忿愤粪丰封枫蜂峰锋风疯烽逢冯缝讽奉凤佛夫敷肤孵扶拂辐幅氟伏俘浮涪福袱弗甫抚辅俯釜斧脯腑府腐赴覆赋傅付阜父腹富讣附妇缚咐噶嘎该概钙盖溉干甘杆柑竿肝赶感秆敢赣冈刚钢缸肛纲岗港篙皋高膏羔糕搞镐稿哥歌搁戈鸽胳疙割革葛蛤阁隔铬根耕更庚羹埂耿梗攻恭龚躬宫弓巩汞拱贡钩勾沟苟狗垢构购辜菇咕箍估沽孤姑鼓古蛊骨谷股故顾固雇刮瓜剐寡挂褂乖拐怪棺官冠观馆罐惯灌贯光广逛瑰规圭硅归龟闺轨鬼诡癸桂柜跪贵刽辊棍锅郭国裹哈骸孩海氦亥害骇酣憨邯韩涵寒喊罕翰撼捍旱憾悍焊汗夯杭航壕嚎豪毫郝好耗浩呵喝荷菏核禾何盒貉阂河涸赫褐鹤贺嘿黑痕很狠恨哼亨横衡恒轰哄烘虹鸿洪宏弘红喉侯猴吼厚候呼乎忽瑚壶葫胡蝴狐糊湖弧虎唬护互沪花哗华猾滑划化槐徊怀淮坏欢环桓缓患唤痪豢焕涣宦幻荒慌黄磺蝗簧皇凰惶煌晃幌恍谎灰挥辉徽恢蛔毁悔慧卉惠晦贿秽烩汇讳诲绘荤昏婚魂浑混豁伙火惑霍货祸圾基畸稽积箕肌饥迹讥鸡姬绩缉吉极棘籍集及急疾汲嫉级挤脊蓟技冀季伎祭剂悸济寄寂既忌际妓纪嘉枷夹佳家荚颊贾甲钾稼价架驾嫁歼监坚尖笺煎兼肩艰奸缄茧柬碱硷拣捡俭剪减荐槛鉴践贱箭健舰剑饯渐溅涧僵姜将浆江疆蒋桨奖讲匠酱降蕉椒礁焦胶交郊浇骄娇嚼搅铰矫侥狡角饺缴绞剿酵轿较叫窖揭皆秸街阶劫桔杰捷睫竭洁姐戒藉芥界借介疥诫届巾筋斤金津襟紧锦谨靳晋禁近烬浸尽劲荆兢茎睛晶鲸京惊精粳井景颈静境敬镜痉靖竟竞净炯窘揪究纠玖韭久灸九酒厩救旧臼舅咎疚鞠拘狙疽居驹菊局咀矩举沮聚拒巨距踞锯俱句惧炬剧捐鹃娟倦眷卷绢撅攫抉掘倔爵觉诀绝均菌钧军君峻俊竣浚郡骏喀咖咯揩楷凯慨刊堪勘坎砍康慷糠扛抗亢炕考烤坷苛柯棵磕颗科壳咳渴克刻课肯啃垦恳坑吭恐孔抠扣寇枯哭窟苦酷库裤夸垮挎跨胯筷侩快款匡筐狂矿眶旷况亏盔岿窥葵奎魁傀馈愧溃坤昆捆困括扩廓阔垃喇蜡腊辣啦莱赖蓝婪栏拦篮阑兰澜谰揽览懒缆烂滥琅榔狼廊郎朗浪捞劳牢老佬姥酪烙涝勒乐雷镭蕾磊累儡垒擂肋泪棱楞冷厘梨犁黎篱狸离漓李鲤礼莉荔吏栗丽厉励砾历利傈俐痢立粒沥隶力璃哩俩莲镰廉怜涟帘敛脸链恋炼练粮凉梁粱良辆晾亮谅撩聊僚疗燎寥辽潦撂镣廖料裂烈劣猎琳林磷霖临邻鳞淋凛赁吝拎玲菱零龄铃伶羚凌灵陵岭领另溜琉榴硫馏刘瘤流柳六龙聋咙笼窿隆垄拢陇楼娄搂篓漏陋芦卢颅庐炉掳卤虏鲁麓碌露赂鹿潞禄陆戮驴吕铝侣旅履屡缕虑氯律率滤绿峦挛孪滦卵掠略抡轮伦仑沦纶论萝螺罗锣箩骡裸洛骆络妈麻玛蚂马骂嘛吗埋买麦卖迈脉瞒馒蛮满蔓曼慢漫谩芒茫盲氓忙莽猫茅锚毛矛铆卯茂冒帽貌贸玫枚梅酶霉煤眉镁美昧寐妹媚门闷们萌蒙檬盟锰猛梦孟眯醚靡糜迷谜弥米秘觅泌蜜幂棉眠绵冕勉娩缅苗描瞄藐秒渺庙妙蔑灭民抿皿敏悯闽螟鸣铭谬摸摹蘑膜磨摩魔抹莫墨沫漠寞陌谋牟拇牡亩姆母墓暮幕募慕木睦牧穆呐钠娜纳氖乃奶耐奈南男难囊挠脑恼闹淖呢馁嫩妮霓倪泥尼拟匿腻逆溺蔫拈碾撵捻念娘酿鸟尿捏聂孽啮镊镍涅您柠狞凝宁拧泞牛扭钮纽脓浓农弄奴努怒女暖虐疟挪懦糯诺哦欧鸥殴藕呕偶沤啪趴爬帕怕琶拍牌徘湃派攀潘盘磐盼畔叛乓庞旁耪胖抛咆刨炮袍泡呸胚培裴赔陪佩沛喷盆砰抨烹澎彭蓬棚硼篷膨朋鹏捧碰坯砒霹披劈琵毗啤脾疲皮匹痞僻屁譬篇偏片骗飘漂瓢票撇瞥拼频贫聘乒坪苹萍平凭瓶评屏坡泼颇婆破魄迫粕剖扑铺仆莆葡菩蒲埔朴圃普浦谱曝瀑欺栖戚妻七凄漆柒沏其棋奇歧畦崎脐旗祈祁骑岂乞契砌气迄弃汽泣讫掐恰洽牵扦钎铅千迁签仟谦乾黔钱钳潜遣浅谴堑欠歉枪呛腔羌墙蔷橇锹敲悄桥瞧乔侨巧鞘撬翘峭俏窍茄怯窃钦侵亲秦琴勤芹擒禽寝沁青轻氢倾卿擎晴氰情顷庆琼穷秋丘邱球求囚酋泅趋区蛆曲躯屈驱渠娶龋趣圈颧醛泉痊拳犬券劝炔瘸却鹊榷雀裙群然燃冉染瓤壤攘嚷让饶扰绕惹热壬仁人忍韧刃妊纫扔戎茸蓉荣融熔溶绒冗揉柔肉茹蠕儒孺辱乳汝褥阮蕊瑞锐闰润若弱撒洒萨腮鳃塞赛三叁伞散桑嗓丧搔骚扫嫂瑟色涩森僧莎砂杀刹沙纱傻啥煞筛晒珊苫杉山煽衫陕擅赡膳善汕扇缮墒伤商赏晌尚裳梢捎稍烧芍勺韶哨邵绍奢赊蛇舌舍赦摄射慑涉社砷呻伸深娠绅神沈审婶甚肾慎渗声甥牲升绳省盛胜圣师狮施湿诗尸虱十石拾什食蚀识史矢使屎驶式士世柿拭誓逝势嗜噬适仕侍饰氏市恃室试首守寿售受瘦兽蔬枢梳殊抒叔舒淑疏书赎孰熟薯暑曙署蜀黍鼠属术述树束戍竖墅庶漱恕耍摔衰甩帅栓拴霜爽谁水睡税吮瞬舜硕朔烁斯撕嘶思私司丝肆寺嗣四伺似饲巳松耸怂颂送宋讼诵搜艘擞嗽苏酥俗素速粟僳塑溯宿诉肃酸蒜虽隋绥髓碎岁穗遂隧祟孙损笋蓑梭唆缩琐索锁塌他她塔獭挞蹋踏胎苔抬台泰酞太汰坍摊贪瘫滩坛檀痰潭谭谈坦毯袒碳叹炭汤塘搪堂棠膛唐糖倘躺淌趟烫掏涛滔绦萄桃逃淘陶讨特藤腾疼誊梯剔踢锑蹄啼嚏惕涕剃屉天添田甜恬舔腆挑迢眺铁帖厅听烃汀廷停亭庭挺艇通桐酮瞳铜彤童桶捅筒痛偷投头透凸秃突途涂屠土吐兔湍团推颓腿蜕褪吞屯臀拖托脱鸵陀驮驼椭妥拓唾挖哇蛙洼娃瓦袜歪豌弯湾玩顽丸烷碗挽晚皖惋宛婉万腕汪王亡枉往旺望妄威巍危韦违桅围唯惟潍维苇萎委伟伪纬未蔚味畏胃喂魏渭谓尉慰卫瘟温蚊闻纹吻稳紊问嗡翁瓮挝蜗涡窝我斡卧握沃巫呜钨乌污诬屋芜梧吾吴毋武五捂午舞伍侮坞戊雾晤物悟误昔熙西硒矽晰嘻吸锡牺稀希悉膝夕惜熄烯溪汐犀檄袭席习媳喜铣洗隙戏瞎虾匣霞辖暇峡侠狭厦夏吓掀锨仙鲜纤咸贤衔舷闲涎弦嫌险现献县腺馅羡宪陷线相厢镶香箱襄湘乡翔祥想响享项巷橡像向象萧硝霄削哮嚣销消宵淆晓小孝校肖啸笑楔歇蝎鞋协挟携邪胁谐械蟹懈泄泻谢屑薪芯锌欣辛忻衅星腥猩惺兴刑形邢醒幸杏姓兄凶胸匈汹雄熊休修羞朽嗅锈秀袖绣墟戌虚嘘徐蓄酗叙旭畜恤絮婿绪轩喧宣悬旋玄癣眩绚靴薛学穴雪血勋熏循旬询寻驯巡殉汛训讯逊迅压押鸦鸭呀丫芽牙蚜崖衙涯雅哑亚讶焉咽阉烟淹盐严研蜒岩延言颜阎炎沿奄掩眼衍演艳堰燕厌砚雁唁彦焰宴谚验殃央鸯秧杨扬佯疡羊洋阳氧仰痒养漾邀腰妖瑶摇尧遥窑谣姚咬舀药耀椰噎耶爷野冶掖叶曳腋夜液壹医揖铱依伊衣颐夷遗移仪胰疑沂宜姨彝椅蚁倚乙矣艺抑易邑屹亿役臆逸肄疫亦裔毅忆义益溢诣谊译异翼翌绎茵荫因殷音阴姻吟银淫寅饮尹引隐印英樱婴鹰缨莹萤营荧蝇迎赢盈影颖硬映哟拥佣臃痈庸雍踊蛹咏泳涌永恿勇幽优悠忧尤邮铀犹油游酉友佑釉诱又幼迂淤盂榆虞愚舆俞逾鱼愉渝渔隅予娱雨屿禹宇语羽玉域芋郁吁遇喻峪御愈欲狱誉浴寓裕预豫驭鸳渊冤元垣袁援辕园圆猿源缘远苑愿怨院曰约越跃岳粤月悦阅耘云郧匀陨允蕴酝晕韵孕匝砸杂栽哉灾宰咱攒暂赞赃脏葬遭糟凿藻枣早澡蚤躁噪造皂灶燥泽贼憎曾赠扎喳渣札轧铡闸眨栅榨咋乍炸诈摘斋宅窄债寨瞻毡詹沾盏斩辗崭展蘸栈战湛绽樟章彰漳掌涨杖丈帐仗胀瘴障招昭沼赵罩兆肇召遮折哲蛰辙者锗蔗浙珍斟甄砧臻贞针侦枕疹诊震振镇阵蒸挣睁征狰争怔拯政症郑芝枝支吱蜘知肢脂汁之职植殖侄止趾旨纸志挚掷至致帜峙智秩稚质炙痔滞治窒盅忠钟衷肿仲众舟周州洲诌粥轴肘帚咒皱宙昼珠株蛛朱猪诸诛逐竹烛煮拄瞩嘱著柱助蛀贮铸筑住祝驻抓爪拽砖撰赚篆桩庄妆撞壮椎锥追赘坠谆捉拙卓桌琢茁酌啄灼浊兹咨资姿滋淄孜紫仔籽滓渍鬃棕踪宗综总纵邹奏揍租足卒族祖诅阻钻纂嘴醉罪尊遵昨左佐柞坐座亍丌兀丐廿卅丕亘丞鬲孬噩丨禺丿匕乇夭爻卮氐囟胤馗毓睾鼗丶亟鼐乜乩亓芈孛啬嘏仄厍厝厣厥厮靥赝匚叵匦匮匾赜卦卣刂刈刎刭刳刿剀剌剞剡剜蒯剽劂劁劐劓冂罔亻仃仉仂仨仡仫仞伛仳伢佤仵伥伧伉伫佞佧攸佚佝佟佗伲伽佶佴侑侉侃侏佾佻侪佼侬侔俦俨俪俅俚俣俜俑俟俸倩偌俳倬倏倮倭俾倜倌倥倨偾偃偕偈偎偬偻傥傧傩傺僖儆僭僬僦僮儇儋仝氽佘佥俎龠汆籴兮巽黉馘冁夔勹匍訇匐凫夙兕亠兖亳衮袤亵脔裒禀嬴蠃羸冫冱冽冼凇冖冢冥讠讦讧讪讴讵讷诂诃诋诏诎诒诓诔诖诘诙诜诟诠诤诨诩诮诰诳诶诹诼诿谀谂谄谇谌谏谑谒谔谕谖谙谛谘谝谟谠谡谥谧谪谫谮谯谲谳谵谶卩卺阝阢阡阱阪阽阼陂陉陔陟陧陬陲陴隈隍隗隰邗邛邝邙邬邡邴邳邶邺邸邰郏郅邾郐郄郇郓郦郢郜郗郛郫郯郾鄄鄢鄞鄣鄱鄯鄹酃酆刍奂劢劬劭劾哿勐勖勰叟燮矍廴凵凼鬯厶弁畚巯坌垩垡塾墼壅壑圩圬圪圳圹圮圯坜圻坂坩垅坫垆坼坻坨坭坶坳垭垤垌垲埏垧垴垓垠埕埘埚埙埒垸埴埯埸埤埝堋堍埽埭堀堞堙塄堠塥塬墁墉墚墀馨鼙懿艹艽艿芏芊芨芄芎芑芗芙芫芸芾芰苈苊苣芘芷芮苋苌苁芩芴芡芪芟苄苎芤苡茉苷苤茏茇苜苴苒苘茌苻苓茑茚茆茔茕苠苕茜荑荛荜茈莒茼茴茱莛荞茯荏荇荃荟荀茗荠茭茺茳荦荥荨茛荩荬荪荭荮莰荸莳莴莠莪莓莜莅荼莶莩荽莸荻莘莞莨莺莼菁萁菥菘堇萘萋菝菽菖萜萸萑萆菔菟萏萃菸菹菪菅菀萦菰菡葜葑葚葙葳蒇蒈葺蒉葸萼葆葩葶蒌蒎萱葭蓁蓍蓐蓦蒽蓓蓊蒿蒺蓠蒡蒹蒴蒗蓥蓣蔌甍蔸蓰蔹蔟蔺蕖蔻蓿蓼蕙蕈蕨蕤蕞蕺瞢蕃蕲蕻薤薨薇薏蕹薮薜薅薹薷薰藓藁藜藿蘧蘅蘩蘖蘼廾弈夼奁耷奕奚奘匏尢尥尬尴扌扪抟抻拊拚拗拮挢拶挹捋捃掭揶捱捺掎掴捭掬掊捩掮掼揲揸揠揿揄揞揎摒揆掾摅摁搋搛搠搌搦搡摞撄摭撖摺撷撸撙撺擀擐擗擤擢攉攥攮弋忒甙弑卟叱叽叩叨叻吒吖吆呋呒呓呔呖呃吡呗呙吣吲咂咔呷呱呤咚咛咄呶呦咝哐咭哂咴哒咧咦哓哔呲咣哕咻咿哌哙哚哜咩咪咤哝哏哞唛哧唠哽唔哳唢唣唏唑唧唪啧喏喵啉啭啁啕唿啐唼唷啖啵啶啷唳唰啜喋嗒喃喱喹喈喁喟啾嗖喑啻嗟喽喾喔喙嗪嗷嗉嘟嗑嗫嗬嗔嗦嗝嗄嗯嗥嗲嗳嗌嗍嗨嗵嗤辔嘞嘈嘌嘁嘤嘣嗾嘀嘧嘭噘嘹噗嘬噍噢噙噜噌噔嚆噤噱噫噻噼嚅嚓嚯囔囗囝囡囵囫囹囿圄圊圉圜帏帙帔帑帱帻帼帷幄幔幛幞幡岌屺岍岐岖岈岘岙岑岚岜岵岢岽岬岫岱岣峁岷峄峒峤峋峥崂崃崧崦崮崤崞崆崛嵘崾崴崽嵬嵛嵯嵝嵫嵋嵊嵩嵴嶂嶙嶝豳嶷巅彳彷徂徇徉後徕徙徜徨徭徵徼衢彡犭犰犴犷犸狃狁狎狍狒狨狯狩狲狴狷猁狳猃狺狻猗猓猡猊猞猝猕猢猹猥猬猸猱獐獍獗獠獬獯獾舛夥飧夤夂饣饧饨饩饪饫饬饴饷饽馀馄馇馊馍馐馑馓馔馕庀庑庋庖庥庠庹庵庾庳赓廒廑廛廨廪膺忄忉忖忏怃忮怄忡忤忾怅怆忪忭忸怙怵怦怛怏怍怩怫怊怿怡恸恹恻恺恂恪恽悖悚悭悝悃悒悌悛惬悻悱惝惘惆惚悴愠愦愕愣惴愀愎愫慊慵憬憔憧憷懔懵忝隳闩闫闱闳闵闶闼闾阃阄阆阈阊阋阌阍阏阒阕阖阗阙阚丬爿戕氵汔汜汊沣沅沐沔沌汨汩汴汶沆沩泐泔沭泷泸泱泗沲泠泖泺泫泮沱泓泯泾洹洧洌浃浈洇洄洙洎洫浍洮洵洚浏浒浔洳涑浯涞涠浞涓涔浜浠浼浣渚淇淅淞渎涿淠渑淦淝淙渖涫渌涮渫湮湎湫溲湟溆湓湔渲渥湄滟溱溘滠漭滢溥溧溽溻溷滗溴滏溏滂溟潢潆潇漤漕滹漯漶潋潴漪漉漩澉澍澌潸潲潼潺濑濉澧澹澶濂濡濮濞濠濯瀚瀣瀛瀹瀵灏灞宀宄宕宓宥宸甯骞搴寤寮褰寰蹇謇辶迓迕迥迮迤迩迦迳迨逅逄逋逦逑逍逖逡逵逶逭逯遄遑遒遐遨遘遢遛暹遴遽邂邈邃邋彐彗彖彘尻咫屐屙孱屣屦羼弪弩弭艴弼鬻屮妁妃妍妩妪妣妗姊妫妞妤姒妲妯姗妾娅娆姝娈姣姘姹娌娉娲娴娑娣娓婀婧婊婕娼婢婵胬媪媛婷婺媾嫫媲嫒嫔媸嫠嫣嫱嫖嫦嫘嫜嬉嬗嬖嬲嬷孀尕尜孚孥孳孑孓孢驵驷驸驺驿驽骀骁骅骈骊骐骒骓骖骘骛骜骝骟骠骢骣骥骧纟纡纣纥纨纩纭纰纾绀绁绂绉绋绌绐绔绗绛绠绡绨绫绮绯绱绲缍绶绺绻绾缁缂缃缇缈缋缌缏缑缒缗缙缜缛缟缡缢缣缤缥缦缧缪缫缬缭缯缰缱缲缳缵幺畿巛甾邕玎玑玮玢玟珏珂珑玷玳珀珉珈珥珙顼琊珩珧珞玺珲琏琪瑛琦琥琨琰琮琬琛琚瑁瑜瑗瑕瑙瑷瑭瑾璜璎璀璁璇璋璞璨璩璐璧瓒璺韪韫韬杌杓杞杈杩枥枇杪杳枘枧杵枨枞枭枋杷杼柰栉柘栊柩枰栌柙枵柚枳柝栀柃枸柢栎柁柽栲栳桠桡桎桢桄桤梃栝桕桦桁桧桀栾桊桉栩梵梏桴桷梓桫棂楮棼椟椠棹椤棰椋椁楗棣椐楱椹楠楂楝榄楫榀榘楸椴槌榇榈槎榉楦楣楹榛榧榻榫榭槔榱槁槊槟榕槠榍槿樯槭樗樘橥槲橄樾檠橐橛樵檎橹樽樨橘橼檑檐檩檗檫猷獒殁殂殇殄殒殓殍殚殛殡殪轫轭轱轲轳轵轶轸轷轹轺轼轾辁辂辄辇辋辍辎辏辘辚軎戋戗戛戟戢戡戥戤戬臧瓯瓴瓿甏甑甓攴旮旯旰昊昙杲昃昕昀炅曷昝昴昱昶昵耆晟晔晁晏晖晡晗晷暄暌暧暝暾曛曜曦曩贲贳贶贻贽赀赅赆赈赉赇赍赕赙觇觊觋觌觎觏觐觑牮犟牝牦牯牾牿犄犋犍犏犒挈挲掰搿擘耄毪毳毽毵毹氅氇氆氍氕氘氙氚氡氩氤氪氲攵敕敫牍牒牖爰虢刖肟肜肓肼朊肽肱肫肭肴肷胧胨胩胪胛胂胄胙胍胗朐胝胫胱胴胭脍脎胲胼朕脒豚脶脞脬脘脲腈腌腓腴腙腚腱腠腩腼腽腭腧塍媵膈膂膑滕膣膪臌朦臊膻臁膦欤欷欹歃歆歙飑飒飓飕飙飚殳彀毂觳斐齑斓於旆旄旃旌旎旒旖炀炜炖炝炻烀炷炫炱烨烊焐焓焖焯焱煳煜煨煅煲煊煸煺熘熳熵熨熠燠燔燧燹爝爨灬焘煦熹戾戽扃扈扉礻祀祆祉祛祜祓祚祢祗祠祯祧祺禅禊禚禧禳忑忐怼恝恚恧恁恙恣悫愆愍慝憩憝懋懑戆肀聿沓泶淼矶矸砀砉砗砘砑斫砭砜砝砹砺砻砟砼砥砬砣砩硎硭硖硗砦硐硇硌硪碛碓碚碇碜碡碣碲碹碥磔磙磉磬磲礅磴礓礤礞礴龛黹黻黼盱眄眍盹眇眈眚眢眙眭眦眵眸睐睑睇睃睚睨睢睥睿瞍睽瞀瞌瞑瞟瞠瞰瞵瞽町畀畎畋畈畛畲畹疃罘罡罟詈罨罴罱罹羁罾盍盥蠲钅钆钇钋钊钌钍钏钐钔钗钕钚钛钜钣钤钫钪钭钬钯钰钲钴钶钷钸钹钺钼钽钿铄铈铉铊铋铌铍铎铐铑铒铕铖铗铙铘铛铞铟铠铢铤铥铧铨铪铩铫铮铯铳铴铵铷铹铼铽铿锃锂锆锇锉锊锍锎锏锒锓锔锕锖锘锛锝锞锟锢锪锫锩锬锱锲锴锶锷锸锼锾锿镂锵镄镅镆镉镌镎镏镒镓镔镖镗镘镙镛镞镟镝镡镢镤镥镦镧镨镩镪镫镬镯镱镲镳锺矧矬雉秕秭秣秫稆嵇稃稂稞稔稹稷穑黏馥穰皈皎皓皙皤瓞瓠甬鸠鸢鸨鸩鸪鸫鸬鸲鸱鸶鸸鸷鸹鸺鸾鹁鹂鹄鹆鹇鹈鹉鹋鹌鹎鹑鹕鹗鹚鹛鹜鹞鹣鹦鹧鹨鹩鹪鹫鹬鹱鹭鹳疒疔疖疠疝疬疣疳疴疸痄疱疰痃痂痖痍痣痨痦痤痫痧瘃痱痼痿瘐瘀瘅瘌瘗瘊瘥瘘瘕瘙瘛瘼瘢瘠癀瘭瘰瘿瘵癃瘾瘳癍癞癔癜癖癫癯翊竦穸穹窀窆窈窕窦窠窬窨窭窳衤衩衲衽衿袂袢裆袷袼裉裢裎裣裥裱褚裼裨裾裰褡褙褓褛褊褴褫褶襁襦襻疋胥皲皴矜耒耔耖耜耠耢耥耦耧耩耨耱耋耵聃聆聍聒聩聱覃顸颀颃颉颌颍颏颔颚颛颞颟颡颢颥颦虍虔虬虮虿虺虼虻蚨蚍蚋蚬蚝蚧蚣蚪蚓蚩蚶蛄蚵蛎蚰蚺蚱蚯蛉蛏蚴蛩蛱蛲蛭蛳蛐蜓蛞蛴蛟蛘蛑蜃蜇蛸蜈蜊蜍蜉蜣蜻蜞蜥蜮蜚蜾蝈蜴蜱蜩蜷蜿螂蜢蝽蝾蝻蝠蝰蝌蝮螋蝓蝣蝼蝤蝙蝥螓螯螨蟒蟆螈螅螭螗螃螫蟥螬螵螳蟋蟓螽蟑蟀蟊蟛蟪蟠蟮蠖蠓蟾蠊蠛蠡蠹蠼缶罂罄罅舐竺竽笈笃笄笕笊笫笏筇笸笪笙笮笱笠笥笤笳笾笞筘筚筅筵筌筝筠筮筻筢筲筱箐箦箧箸箬箝箨箅箪箜箢箫箴篑篁篌篝篚篥篦篪簌篾篼簏簖簋簟簪簦簸籁籀臾舁舂舄臬衄舡舢舣舭舯舨舫舸舻舳舴舾艄艉艋艏艚艟艨衾袅袈裘裟襞羝羟羧羯羰羲籼敉粑粝粜粞粢粲粼粽糁糇糌糍糈糅糗糨艮暨羿翎翕翥翡翦翩翮翳糸絷綦綮繇纛麸麴赳趄趔趑趱赧赭豇豉酊酐酎酏酤酢酡酰酩酯酽酾酲酴酹醌醅醐醍醑醢醣醪醭醮醯醵醴醺豕鹾趸跫踅蹙蹩趵趿趼趺跄跖跗跚跞跎跏跛跆跬跷跸跣跹跻跤踉跽踔踝踟踬踮踣踯踺蹀踹踵踽踱蹉蹁蹂蹑蹒蹊蹰蹶蹼蹯蹴躅躏躔躐躜躞豸貂貊貅貘貔斛觖觞觚觜觥觫觯訾謦靓雩雳雯霆霁霈霏霎霪霭霰霾龀龃龅龆龇龈龉龊龌黾鼋鼍隹隼隽雎雒瞿雠銎銮鋈錾鍪鏊鎏鐾鑫鱿鲂鲅鲆鲇鲈稣鲋鲎鲐鲑鲒鲔鲕鲚鲛鲞鲟鲠鲡鲢鲣鲥鲦鲧鲨鲩鲫鲭鲮鲰鲱鲲鲳鲴鲵鲶鲷鲺鲻鲼鲽鳄鳅鳆鳇鳊鳋鳌鳍鳎鳏鳐鳓鳔鳕鳗鳘鳙鳜鳝鳟鳢靼鞅鞑鞒鞔鞯鞫鞣鞲鞴骱骰骷鹘骶骺骼髁髀髅髂髋髌髑魅魃魇魉魈魍魑飨餍餮饕饔髟髡髦髯髫髻髭髹鬈鬏鬓鬟鬣麽麾縻麂麇麈麋麒鏖麝麟黛黜黝黠黟黢黩黧黥黪黯鼢鼬鼯鼹鼷鼽鼾齄";
+var GBK_HEX = "D7D6B7FBA1FAC2EBB1EDA3BACFC2D4D8CAB1D3C3A3ACBDC5B1BEC9FAB3C9CEF0CAD6B8C4C5E4D6C3C8ABB2BFB7C5D4DACDACC4BFC2BCB5C4C0EFD5E2D6BBB8BAD4F0B6C1C8A1B2BBD2AAA1A3C3BBBCD3B9A6A3A8B1C8C8E7CDFCC1CBD2BBC6F0BFBDA3A9BBD8C2E4B5BDC4ACC8CFD6B5D2B3C3E6D5D5B3A3C4DCC3FCC1EEC4A3B0E5BFCDBBA7B6CBD3EBB7FECEF1C6F7B6BCCAC7CCD7B3E9C1BDB8F6BAAFCAFDB6E0B2FAC6B7BECDB8F7B3ADB1E9B3A4B4AEBBE1B1BBCCE6BBBBB5D8D6B7B6D4D3A6C3DCD4BFB1D8D0EBD6B4D0D0B6F8B0B2D7B0C2B7BEB6D3D0D6D6BFC9CBF9D2D4B5DAD0B4CBC0CCF5CCBDB2E2D3C9CCE1B9A9BEDDC0B4D7D4B6CECEC4BCFED4D9C4DAC7B6D4F6C9BEC0E0D0CDB0E6B2B9C6EBBEF6B6A8BBB9B6AFC2DFBCADB6A5B7C3CEDED0E8CCEED6B1BDD3C9CFA3BBB7B5BFD5BCCCD0F8CFD4CABED5BCCEBBBDF8B3A1BBADCDB3D7DFBACFB2E3A1B8A1B9C4C7C7BFD6C6B2BDD6D8C5C5B7A8CFC8B0B4D6D5CCACD6A1B2A5BFB4C8A5C9C1B6D9BDF1C8D5BCC6B9ABB8E6B0B8B1F0CBB5BAACD0D4BEAFC7EBC8B7CBFCBACDC7D2D7E9B4EDBDF6D3DAD6AFD2D1BBF1CEA2C8EDC5FAC1BFCADAC8A8C9E8B1B8B4F8B0D1CDE2B4ABD6E8D6B8C0ADB3E4D1A1D4F1C3F7B4FABFF2C1F4D5B3B8B4B9DCC0EDD4B1D6D0CCF9B4CEC7B0D5D2BBFABCB8CCF8B9FDC1AACFB5BDE1B9FBBFA8CAD3BFDAB7BDB2C5B9F6B5C8CDEAB1DCC3E2C7C0CAA7B0DCB4A6BDE2CEF6C2D2CAB5BAF3C4B3D0A9BABAD5FBD0A7BDDAD5C5D7F6D7AACAD5D4ADD1F9C8B1C9D9B1E4D0C2D4CBD5E6C8D4D7A2CACDB5F4B7F1D4F2C4C3D7C5BCD9CDBDB1A8B2A2C4E3C9EACFDEB5AFB4B0B5E3BEADC5DCBCBAD5FDC9EDB7DDC6F4A1ADB3F6D5CBBFD8B9D8CEAAD3D2BCFCB5C3BFAACABCD2B2BCA4BBEEBBB0BCC7CAC2B4F2B1CFC8DDBDD8CDBCB8F8C8CED2E2B1D5C3FBB6CCC0FDD7A8D2B5A1A2C4A9CEB2C4EAB2CBB5A5B9B2B8FAB8F1CBE3BFEDB6C8B1A3D6A4C1D0CDF8B9A4BEDFD6F7CDCBCAE4C8EBB1E0BAC5B3B5D7D3C3BFBFE9BCECB2E9CBABBBF7BCB4A1A4A1EFB4E6CBA2D4F5C3B4A3BFB8B1B1EACCE2CBE6B1E3B5ABD7BABDA8D2E9BCF2B4F3BBF2A1C1CBB3D0F2C5D0B6CFC4C4C7D0BFBFA1AAB9BBA2D9D0B1B8DCA2DAD7EEBCFBC3BDCCE5D7F7D5BEBDCCD3FDC6F3C6DAD7BCD0C4D7B4CFEACFB8D0C5CFA2CAA3D3E0BCE4D0EDC1ACC7E5B3FDD0B6B0A1B0A2B0A3B0A4B0A5B0A6B0A7B0A8B0A9B0AAB0ABB0ACB0ADB0AEB0AFB0B0B0B1B0B3B0B5B0B6B0B7B0B9B0BAB0BBB0BCB0BDB0BEB0BFB0C0B0C1B0C2B0C3B0C4B0C5B0C6B0C7B0C8B0C9B0CAB0CBB0CCB0CDB0CEB0CFB0D0B0D2B0D3B0D4B0D5B0D6B0D7B0D8B0D9B0DAB0DBB0DDB0DEB0DFB0E0B0E1B0E2B0E3B0E4B0E7B0E8B0E9B0EAB0EBB0ECB0EDB0EEB0EFB0F0B0F1B0F2B0F3B0F4B0F5B0F6B0F7B0F8B0F9B0FAB0FBB0FCB0FDB0FEB1A1B1A2B1A4B1A5B1A6B1A7B1A9B1AAB1ABB1ACB1ADB1AEB1AFB1B0B1B1B1B2B1B3B1B4B1B5B1B6B1B7B1B9B1BAB1BCB1BDB1BFB1C0B1C1B1C2B1C3B1C4B1C5B1C6B1C7B1C9B1CAB1CBB1CCB1CDB1CEB1D0B1D1B1D2B1D3B1D4B1D6B1D7B1D9B1DAB1DBB1DDB1DEB1DFB1E1B1E2B1E5B1E6B1E7B1E8B1EBB1ECB1EEB1EFB1F1B1F2B1F3B1F4B1F5B1F6B1F7B1F8B1F9B1FAB1FBB1FCB1FDB1FEB2A1B2A3B2A4B2A6B2A7B2A8B2A9B2AAB2ABB2ACB2ADB2AEB2AFB2B0B2B1B2B2B2B3B2B4B2B5B2B6B2B7B2B8B2BAB2BCB2BEB2C0B2C1B2C2B2C3B2C4B2C6B2C7B2C8B2C9B2CAB2CCB2CDB2CEB2CFB2D0B2D1B2D2B2D3B2D4B2D5B2D6B2D7B2D8B2D9B2DAB2DBB2DCB2DDB2DEB2DFB2E0B2E1B2E4B2E5B2E6B2E7B2E8B2EAB2EBB2ECB2EDB2EEB2EFB2F0B2F1B2F2B2F3B2F4B2F5B2F6B2F7B2F8B2F9B2FBB2FCB2FDB2FEB3A2B3A5B3A6B3A7B3A8B3A9B3AAB3ABB3ACB3AEB3AFB3B0B3B1B3B2B3B3B3B4B3B6B3B7B3B8B3B9B3BAB3BBB3BCB3BDB3BEB3BFB3C0B3C1B3C2B3C3B3C4B3C5B3C6B3C7B3C8B3CAB3CBB3CCB3CDB3CEB3CFB3D0B3D1B3D2B3D3B3D4B3D5B3D6B3D7B3D8B3D9B3DAB3DBB3DCB3DDB3DEB3DFB3E0B3E1B3E2B3E3B3E5B3E6B3E7B3E8B3EAB3EBB3ECB3EDB3EEB3EFB3F0B3F1B3F2B3F3B3F4B3F5B3F7B3F8B3F9B3FAB3FBB3FCB3FEB4A1B4A2B4A3B4A4B4A5B4A7B4A8B4A9B4AAB4ACB4ADB4AFB4B1B4B2B4B3B4B4B4B5B4B6B4B7B4B8B4B9B4BAB4BBB4BCB4BDB4BEB4BFB4C0B4C1B4C2B4C3B4C4B4C5B4C6B4C7B4C8B4C9B4CAB4CBB4CCB4CDB4CFB4D0B4D1B4D2B4D3B4D4B4D5B4D6B4D7B4D8B4D9B4DAB4DBB4DCB4DDB4DEB4DFB4E0B4E1B4E2B4E3B4E4B4E5B4E7B4E8B4E9B4EAB4EBB4ECB4EEB4EFB4F0B4F1B4F4B4F5B4F6B4F7B4F9B4FBB4FCB4FDB4FEB5A1B5A2B5A3B5A4B5A6B5A7B5A8B5A9B5AAB5ACB5ADB5AEB5B0B5B1B5B2B5B3B5B4B5B5B5B6B5B7B5B8B5B9B5BAB5BBB5BCB5BEB5BFB5C0B5C1B5C2B5C5B5C6B5C7B5C9B5CAB5CBB5CCB5CDB5CEB5CFB5D0B5D1B5D2B5D3B5D4B5D5B5D6B5D7B5D9B5DBB5DCB5DDB5DEB5DFB5E0B5E1B5E2B5E4B5E5B5E6B5E7B5E8B5E9B5EAB5EBB5ECB5EDB5EEB5EFB5F0B5F1B5F2B5F3B5F5B5F6B5F7B5F8B5F9B5FAB5FBB5FCB5FDB5FEB6A1B6A2B6A3B6A4B6A6B6A7B6A9B6AAB6ABB6ACB6ADB6AEB6B0B6B1B6B2B6B3B6B4B6B5B6B6B6B7B6B8B6B9B6BAB6BBB6BDB6BEB6BFB6C0B6C2B6C3B6C4B6C5B6C6B6C7B6C9B6CAB6CDB6D0B6D1B6D2B6D3B6D5B6D6B6D7B6D8B6DAB6DBB6DCB6DDB6DEB6DFB6E1B6E2B6E3B6E4B6E5B6E6B6E7B6E8B6E9B6EAB6EBB6ECB6EDB6EEB6EFB6F0B6F1B6F2B6F3B6F4B6F5B6F6B6F7B6F9B6FAB6FBB6FCB6FDB6FEB7A1B7A2B7A3B7A4B7A5B7A6B7A7B7A9B7AAB7ABB7ACB7ADB7AEB7AFB7B0B7B1B7B2B7B3B7B4B7B6B7B7B7B8B7B9B7BAB7BBB7BCB7BEB7BFB7C0B7C1B7C2B7C4B7C6B7C7B7C8B7C9B7CAB7CBB7CCB7CDB7CEB7CFB7D0B7D1B7D2B7D3B7D4B7D5B7D6B7D7B7D8B7D9B7DAB7DBB7DCB7DEB7DFB7E0B7E1B7E2B7E3B7E4B7E5B7E6B7E7B7E8B7E9B7EAB7EBB7ECB7EDB7EEB7EFB7F0B7F2B7F3B7F4B7F5B7F6B7F7B7F8B7F9B7FAB7FCB7FDB8A1B8A2B8A3B8A4B8A5B8A6B8A7B8A8B8A9B8AAB8ABB8ACB8ADB8AEB8AFB8B0B8B2B8B3B8B5B8B6B8B7B8B8B8B9B8BBB8BCB8BDB8BEB8BFB8C0B8C1B8C2B8C3B8C5B8C6B8C7B8C8B8C9B8CAB8CBB8CCB8CDB8CEB8CFB8D0B8D1B8D2B8D3B8D4B8D5B8D6B8D7B8D8B8D9B8DAB8DBB8DDB8DEB8DFB8E0B8E1B8E2B8E3B8E4B8E5B8E7B8E8B8E9B8EAB8EBB8ECB8EDB8EEB8EFB8F0B8F2B8F3B8F4B8F5B8F9B8FBB8FCB8FDB8FEB9A1B9A2B9A3B9A5B9A7B9A8B9AAB9ACB9ADB9AEB9AFB9B0B9B1B9B3B9B4B9B5B9B6B9B7B9B8B9B9B9BAB9BCB9BDB9BEB9BFB9C0B9C1B9C2B9C3B9C4B9C5B9C6B9C7B9C8B9C9B9CAB9CBB9CCB9CDB9CEB9CFB9D0B9D1B9D2B9D3B9D4B9D5B9D6B9D7B9D9B9DAB9DBB9DDB9DEB9DFB9E0B9E1B9E2B9E3B9E4B9E5B9E6B9E7B9E8B9E9B9EAB9EBB9ECB9EDB9EEB9EFB9F0B9F1B9F2B9F3B9F4B9F5B9F7B9F8B9F9B9FAB9FCB9FEBAA1BAA2BAA3BAA4BAA5BAA6BAA7BAA8BAA9BAAABAABBAADBAAEBAB0BAB1BAB2BAB3BAB4BAB5BAB6BAB7BAB8BAB9BABBBABCBABDBABEBABFBAC0BAC1BAC2BAC3BAC4BAC6BAC7BAC8BAC9BACABACBBACCBACEBAD0BAD1BAD2BAD3BAD4BAD5BAD6BAD7BAD8BAD9BADABADBBADCBADDBADEBADFBAE0BAE1BAE2BAE3BAE4BAE5BAE6BAE7BAE8BAE9BAEABAEBBAECBAEDBAEEBAEFBAF0BAF1BAF2BAF4BAF5BAF6BAF7BAF8BAF9BAFABAFBBAFCBAFDBAFEBBA1BBA2BBA3BBA4BBA5BBA6BBA8BBA9BBAABBABBBACBBAEBBAFBBB1BBB2BBB3BBB4BBB5BBB6BBB7BBB8BBBABBBCBBBDBBBEBBBFBBC0BBC1BBC2BBC3BBC4BBC5BBC6BBC7BBC8BBC9BBCABBCBBBCCBBCDBBCEBBCFBBD0BBD1BBD2BBD3BBD4BBD5BBD6BBD7BBD9BBDABBDBBBDCBBDDBBDEBBDFBBE0BBE2BBE3BBE4BBE5BBE6BBE7BBE8BBE9BBEABBEBBBECBBEDBBEFBBF0BBF3BBF4BBF5BBF6BBF8BBF9BBFBBBFCBBFDBBFEBCA1BCA2BCA3BCA5BCA6BCA7BCA8BCA9BCAABCABBCACBCAEBCAFBCB0BCB1BCB2BCB3BCB5BCB6BCB7BCB9BCBBBCBCBCBDBCBEBCBFBCC0BCC1BCC2BCC3BCC4BCC5BCC8BCC9BCCABCCBBCCDBCCEBCCFBCD0BCD1BCD2BCD4BCD5BCD6BCD7BCD8BCDABCDBBCDCBCDDBCDEBCDFBCE0BCE1BCE2BCE3BCE5BCE6BCE7BCE8BCE9BCEABCEBBCEDBCEEBCEFBCF0BCF1BCF3BCF4BCF5BCF6BCF7BCF8BCF9BCFABCFDBDA1BDA2BDA3BDA4BDA5BDA6BDA7BDA9BDAABDABBDACBDADBDAEBDAFBDB0BDB1BDB2BDB3BDB4BDB5BDB6BDB7BDB8BDB9BDBABDBBBDBCBDBDBDBEBDBFBDC0BDC1BDC2BDC3BDC4BDC6BDC7BDC8BDC9BDCABDCBBDCDBDCEBDCFBDD0BDD1BDD2BDD4BDD5BDD6BDD7BDD9BDDBBDDCBDDDBDDEBDDFBDE0BDE3BDE4BDE5BDE6BDE7BDE8BDE9BDEABDEBBDECBDEDBDEEBDEFBDF0BDF2BDF3BDF4BDF5BDF7BDF9BDFABDFBBDFCBDFDBDFEBEA1BEA2BEA3BEA4BEA5BEA6BEA7BEA8BEA9BEAABEABBEACBEAEBEB0BEB1BEB2BEB3BEB4BEB5BEB7BEB8BEB9BEBABEBBBEBCBEBDBEBEBEBFBEC0BEC1BEC2BEC3BEC4BEC5BEC6BEC7BEC8BEC9BECABECBBECCBECEBECFBED0BED1BED2BED3BED4BED5BED6BED7BED8BED9BEDABEDBBEDCBEDEBEE0BEE1BEE2BEE3BEE4BEE5BEE6BEE7BEE8BEE9BEEABEEBBEECBEEDBEEEBEEFBEF0BEF1BEF2BEF3BEF4BEF5BEF7BEF8BEF9BEFABEFBBEFCBEFDBEFEBFA1BFA2BFA3BFA4BFA5BFA6BFA7BFA9BFABBFACBFADBFAEBFAFBFB0BFB1BFB2BFB3BFB5BFB6BFB7BFB8BFB9BFBABFBBBFBCBFBEBFC0BFC1BFC2BFC3BFC4BFC5BFC6BFC7BFC8BFCABFCBBFCCBFCEBFCFBFD0BFD1BFD2BFD3BFD4BFD6BFD7BFD9BFDBBFDCBFDDBFDEBFDFBFE0BFE1BFE2BFE3BFE4BFE5BFE6BFE7BFE8BFEABFEBBFECBFEEBFEFBFF0BFF1BFF3BFF4BFF5BFF6BFF7BFF8BFF9BFFABFFBBFFCBFFDBFFEC0A1C0A2C0A3C0A4C0A5C0A6C0A7C0A8C0A9C0AAC0ABC0ACC0AEC0AFC0B0C0B1C0B2C0B3C0B5C0B6C0B7C0B8C0B9C0BAC0BBC0BCC0BDC0BEC0BFC0C0C0C1C0C2C0C3C0C4C0C5C0C6C0C7C0C8C0C9C0CAC0CBC0CCC0CDC0CEC0CFC0D0C0D1C0D2C0D3C0D4C0D5C0D6C0D7C0D8C0D9C0DAC0DBC0DCC0DDC0DEC0DFC0E1C0E2C0E3C0E4C0E5C0E6C0E7C0E8C0E9C0EAC0EBC0ECC0EEC0F0C0F1C0F2C0F3C0F4C0F5C0F6C0F7C0F8C0F9C0FAC0FBC0FCC0FEC1A1C1A2C1A3C1A4C1A5C1A6C1A7C1A8C1A9C1ABC1ADC1AEC1AFC1B0C1B1C1B2C1B3C1B4C1B5C1B6C1B7C1B8C1B9C1BAC1BBC1BCC1BEC1C0C1C1C1C2C1C3C1C4C1C5C1C6C1C7C1C8C1C9C1CAC1CCC1CDC1CEC1CFC1D1C1D2C1D3C1D4C1D5C1D6C1D7C1D8C1D9C1DAC1DBC1DCC1DDC1DEC1DFC1E0C1E1C1E2C1E3C1E4C1E5C1E6C1E7C1E8C1E9C1EAC1EBC1ECC1EDC1EFC1F0C1F1C1F2C1F3C1F5C1F6C1F7C1F8C1F9C1FAC1FBC1FCC1FDC1FEC2A1C2A2C2A3C2A4C2A5C2A6C2A7C2A8C2A9C2AAC2ABC2ACC2ADC2AEC2AFC2B0C2B1C2B2C2B3C2B4C2B5C2B6C2B8C2B9C2BAC2BBC2BDC2BEC2BFC2C0C2C1C2C2C2C3C2C4C2C5C2C6C2C7C2C8C2C9C2CAC2CBC2CCC2CDC2CEC2CFC2D0C2D1C2D3C2D4C2D5C2D6C2D7C2D8C2D9C2DAC2DBC2DCC2DDC2DEC2E0C2E1C2E2C2E3C2E5C2E6C2E7C2E8C2E9C2EAC2ECC2EDC2EEC2EFC2F0C2F1C2F2C2F3C2F4C2F5C2F6C2F7C2F8C2F9C2FAC2FBC2FCC2FDC2FEC3A1C3A2C3A3C3A4C3A5C3A6C3A7C3A8C3A9C3AAC3ABC3ACC3ADC3AEC3AFC3B0C3B1C3B2C3B3C3B5C3B6C3B7C3B8C3B9C3BAC3BCC3BEC3C0C3C1C3C2C3C3C3C4C3C5C3C6C3C7C3C8C3C9C3CAC3CBC3CCC3CDC3CEC3CFC3D0C3D1C3D2C3D3C3D4C3D5C3D6C3D7C3D8C3D9C3DAC3DBC3DDC3DEC3DFC3E0C3E1C3E3C3E4C3E5C3E7C3E8C3E9C3EAC3EBC3ECC3EDC3EEC3EFC3F0C3F1C3F2C3F3C3F4C3F5C3F6C3F8C3F9C3FAC3FDC3FEC4A1C4A2C4A4C4A5C4A6C4A7C4A8C4AAC4ABC4ADC4AEC4AFC4B0C4B1C4B2C4B4C4B5C4B6C4B7C4B8C4B9C4BAC4BBC4BCC4BDC4BEC4C0C4C1C4C2C4C5C4C6C4C8C4C9C4CAC4CBC4CCC4CDC4CEC4CFC4D0C4D1C4D2C4D3C4D4C4D5C4D6C4D7C4D8C4D9C4DBC4DDC4DEC4DFC4E0C4E1C4E2C4E4C4E5C4E6C4E7C4E8C4E9C4EBC4ECC4EDC4EEC4EFC4F0C4F1C4F2C4F3C4F4C4F5C4F6C4F7C4F8C4F9C4FAC4FBC4FCC4FDC4FEC5A1C5A2C5A3C5A4C5A5C5A6C5A7C5A8C5A9C5AAC5ABC5ACC5ADC5AEC5AFC5B0C5B1C5B2C5B3C5B4C5B5C5B6C5B7C5B8C5B9C5BAC5BBC5BCC5BDC5BEC5BFC5C0C5C1C5C2C5C3C5C4C5C6C5C7C5C8C5C9C5CAC5CBC5CCC5CDC5CEC5CFC5D1C5D2C5D3C5D4C5D5C5D6C5D7C5D8C5D9C5DAC5DBC5DDC5DEC5DFC5E0C5E1C5E2C5E3C5E5C5E6C5E7C5E8C5E9C5EAC5EBC5ECC5EDC5EEC5EFC5F0C5F1C5F2C5F3C5F4C5F5C5F6C5F7C5F8C5F9C5FBC5FCC5FDC5FEC6A1C6A2C6A3C6A4C6A5C6A6C6A7C6A8C6A9C6AAC6ABC6ACC6ADC6AEC6AFC6B0C6B1C6B2C6B3C6B4C6B5C6B6C6B8C6B9C6BAC6BBC6BCC6BDC6BEC6BFC6C0C6C1C6C2C6C3C6C4C6C5C6C6C6C7C6C8C6C9C6CAC6CBC6CCC6CDC6CEC6CFC6D0C6D1C6D2C6D3C6D4C6D5C6D6C6D7C6D8C6D9C6DBC6DCC6DDC6DEC6DFC6E0C6E1C6E2C6E3C6E4C6E5C6E6C6E7C6E8C6E9C6EAC6ECC6EDC6EEC6EFC6F1C6F2C6F5C6F6C6F8C6F9C6FAC6FBC6FCC6FDC6FEC7A1C7A2C7A3C7A4C7A5C7A6C7A7C7A8C7A9C7AAC7ABC7ACC7ADC7AEC7AFC7B1C7B2C7B3C7B4C7B5C7B7C7B8C7B9C7BAC7BBC7BCC7BDC7BEC7C1C7C2C7C3C7C4C7C5C7C6C7C7C7C8C7C9C7CAC7CBC7CCC7CDC7CEC7CFC7D1C7D3C7D4C7D5C7D6C7D7C7D8C7D9C7DAC7DBC7DCC7DDC7DEC7DFC7E0C7E1C7E2C7E3C7E4C7E6C7E7C7E8C7E9C7EAC7ECC7EDC7EEC7EFC7F0C7F1C7F2C7F3C7F4C7F5C7F6C7F7C7F8C7F9C7FAC7FBC7FCC7FDC7FEC8A2C8A3C8A4C8A6C8A7C8A9C8AAC8ACC8ADC8AEC8AFC8B0C8B2C8B3C8B4C8B5C8B6C8B8C8B9C8BAC8BBC8BCC8BDC8BEC8BFC8C0C8C1C8C2C8C3C8C4C8C5C8C6C8C7C8C8C8C9C8CAC8CBC8CCC8CDC8D0C8D1C8D2C8D3C8D6C8D7C8D8C8D9C8DAC8DBC8DCC8DEC8DFC8E0C8E1C8E2C8E3C8E4C8E5C8E6C8E8C8E9C8EAC8ECC8EEC8EFC8F0C8F1C8F2C8F3C8F4C8F5C8F6C8F7C8F8C8F9C8FAC8FBC8FCC8FDC8FEC9A1C9A2C9A3C9A4C9A5C9A6C9A7C9A8C9A9C9AAC9ABC9ACC9ADC9AEC9AFC9B0C9B1C9B2C9B3C9B4C9B5C9B6C9B7C9B8C9B9C9BAC9BBC9BCC9BDC9BFC9C0C9C2C9C3C9C4C9C5C9C6C9C7C9C8C9C9C9CAC9CBC9CCC9CDC9CEC9D0C9D1C9D2C9D3C9D4C9D5C9D6C9D7C9D8C9DAC9DBC9DCC9DDC9DEC9DFC9E0C9E1C9E2C9E3C9E4C9E5C9E6C9E7C9E9C9EBC9ECC9EEC9EFC9F0C9F1C9F2C9F3C9F4C9F5C9F6C9F7C9F8C9F9C9FBC9FCC9FDC9FECAA1CAA2CAA4CAA5CAA6CAA8CAA9CAAACAABCAACCAADCAAECAAFCAB0CAB2CAB3CAB4CAB6CAB7CAB8CAB9CABACABBCABDCABFCAC0CAC1CAC3CAC4CAC5CAC6CAC8CAC9CACACACBCACCCACECACFCAD0CAD1CAD2CAD4CAD7CAD8CAD9CADBCADCCADDCADECADFCAE0CAE1CAE2CAE3CAE5CAE6CAE7CAE8CAE9CAEACAEBCAECCAEDCAEECAEFCAF0CAF1CAF2CAF3CAF4CAF5CAF6CAF7CAF8CAF9CAFACAFBCAFCCAFECBA1CBA3CBA4CBA5CBA6CBA7CBA8CBA9CBAACBACCBADCBAECBAFCBB0CBB1CBB2CBB4CBB6CBB7CBB8CBB9CBBACBBBCBBCCBBDCBBECBBFCBC1CBC2CBC3CBC4CBC5CBC6CBC7CBC8CBC9CBCACBCBCBCCCBCDCBCECBCFCBD0CBD1CBD2CBD3CBD4CBD5CBD6CBD7CBD8CBD9CBDACBDBCBDCCBDDCBDECBDFCBE0CBE1CBE2CBE4CBE5CBE7CBE8CBE9CBEACBEBCBECCBEDCBEECBEFCBF0CBF1CBF2CBF3CBF4CBF5CBF6CBF7CBF8CBFACBFBCBFDCBFECCA1CCA2CCA3CCA4CCA5CCA6CCA7CCA8CCA9CCAACCABCCADCCAECCAFCCB0CCB1CCB2CCB3CCB4CCB5CCB6CCB7CCB8CCB9CCBACCBBCCBCCCBECCBFCCC0CCC1CCC2CCC3CCC4CCC5CCC6CCC7CCC8CCC9CCCACCCBCCCCCCCDCCCECCCFCCD0CCD1CCD2CCD3CCD4CCD5CCD6CCD8CCD9CCDACCDBCCDCCCDDCCDECCDFCCE0CCE3CCE4CCE7CCE8CCE9CCEACCEBCCECCCEDCCEFCCF0CCF1CCF2CCF3CCF4CCF6CCF7CCFACCFBCCFCCCFDCCFECDA1CDA2CDA3CDA4CDA5CDA6CDA7CDA8CDA9CDAACDABCDADCDAECDAFCDB0CDB1CDB2CDB4CDB5CDB6CDB7CDB8CDB9CDBACDBBCDBECDBFCDC0CDC1CDC2CDC3CDC4CDC5CDC6CDC7CDC8CDC9CDCACDCCCDCDCDCECDCFCDD0CDD1CDD2CDD3CDD4CDD5CDD6CDD7CDD8CDD9CDDACDDBCDDCCDDDCDDECDDFCDE0CDE1CDE3CDE4CDE5CDE6CDE7CDE8CDE9CDEBCDECCDEDCDEECDEFCDF0CDF1CDF2CDF3CDF4CDF5CDF6CDF7CDF9CDFACDFBCDFDCDFECEA1CEA3CEA4CEA5CEA6CEA7CEA8CEA9CEABCEACCEADCEAECEAFCEB0CEB1CEB3CEB4CEB5CEB6CEB7CEB8CEB9CEBACEBCCEBDCEBECEBFCEC0CEC1CEC2CEC3CEC5CEC6CEC7CEC8CEC9CECACECBCECCCECDCECECECFCED0CED1CED2CED3CED4CED5CED6CED7CED8CED9CEDACEDBCEDCCEDDCEDFCEE0CEE1CEE2CEE3CEE4CEE5CEE6CEE7CEE8CEE9CEEACEEBCEECCEEDCEEECEEFCEF2CEF3CEF4CEF5CEF7CEF8CEF9CEFACEFBCEFCCEFDCEFECFA1CFA3CFA4CFA5CFA6CFA7CFA8CFA9CFAACFABCFACCFADCFAECFAFCFB0CFB1CFB2CFB3CFB4CFB6CFB7CFB9CFBACFBBCFBCCFBDCFBECFBFCFC0CFC1CFC3CFC4CFC5CFC6CFC7CFC9CFCACFCBCFCCCFCDCFCECFCFCFD0CFD1CFD2CFD3CFD5CFD6CFD7CFD8CFD9CFDACFDBCFDCCFDDCFDFCFE0CFE1CFE2CFE3CFE4CFE5CFE6CFE7CFE8CFE9CFEBCFECCFEDCFEECFEFCFF0CFF1CFF2CFF3CFF4CFF5CFF6CFF7CFF8CFF9CFFACFFBCFFCCFFDCFFED0A1D0A2D0A3D0A4D0A5D0A6D0A8D0AAD0ABD0ACD0ADD0AED0AFD0B0D0B2D0B3D0B5D0B7D0B8D0B9D0BAD0BBD0BCD0BDD0BED0BFD0C0D0C1D0C3D0C6D0C7D0C8D0C9D0CAD0CBD0CCD0CED0CFD0D1D0D2D0D3D0D5D0D6D0D7D0D8D0D9D0DAD0DBD0DCD0DDD0DED0DFD0E0D0E1D0E2D0E3D0E4D0E5D0E6D0E7D0E9D0EAD0ECD0EED0EFD0F0D0F1D0F3D0F4D0F5D0F6D0F7D0F9D0FAD0FBD0FCD0FDD0FED1A2D1A3D1A4D1A5D1A6D1A7D1A8D1A9D1AAD1ABD1ACD1ADD1AED1AFD1B0D1B1D1B2D1B3D1B4D1B5D1B6D1B7D1B8D1B9D1BAD1BBD1BCD1BDD1BED1BFD1C0D1C1D1C2D1C3D1C4D1C5D1C6D1C7D1C8D1C9D1CAD1CBD1CCD1CDD1CED1CFD1D0D1D1D1D2D1D3D1D4D1D5D1D6D1D7D1D8D1D9D1DAD1DBD1DCD1DDD1DED1DFD1E0D1E1D1E2D1E3D1E4D1E5D1E6D1E7D1E8D1E9D1EAD1EBD1ECD1EDD1EED1EFD1F0D1F1D1F2D1F3D1F4D1F5D1F6D1F7D1F8D1FAD1FBD1FCD1FDD1FED2A1D2A2D2A3D2A4D2A5D2A6D2A7D2A8D2A9D2ABD2ACD2ADD2AED2AFD2B0D2B1D2B4D2B6D2B7D2B8D2B9D2BAD2BCD2BDD2BED2BFD2C0D2C1D2C2D2C3D2C4D2C5D2C6D2C7D2C8D2C9D2CAD2CBD2CCD2CDD2CED2CFD2D0D2D2D2D3D2D5D2D6D2D7D2D8D2D9D2DAD2DBD2DCD2DDD2DED2DFD2E0D2E1D2E3D2E4D2E5D2E6D2E7D2E8D2EAD2EBD2ECD2EDD2EED2EFD2F0D2F1D2F2D2F3D2F4D2F5D2F6D2F7D2F8D2F9D2FAD2FBD2FCD2FDD2FED3A1D3A2D3A3D3A4D3A5D3A7D3A8D3A9D3AAD3ABD3ACD3ADD3AED3AFD3B0D3B1D3B2D3B3D3B4D3B5D3B6D3B7D3B8D3B9D3BAD3BBD3BCD3BDD3BED3BFD3C0D3C1D3C2D3C4D3C5D3C6D3C7D3C8D3CAD3CBD3CCD3CDD3CED3CFD3D1D3D3D3D4D3D5D3D6D3D7D3D8D3D9D3DBD3DCD3DDD3DED3DFD3E1D3E2D3E3D3E4D3E5D3E6D3E7D3E8D3E9D3EAD3ECD3EDD3EED3EFD3F0D3F1D3F2D3F3D3F4D3F5D3F6D3F7D3F8D3F9D3FAD3FBD3FCD3FED4A1D4A2D4A3D4A4D4A5D4A6D4A7D4A8D4A9D4AAD4ABD4ACD4AED4AFD4B0D4B2D4B3D4B4D4B5D4B6D4B7D4B8D4B9D4BAD4BBD4BCD4BDD4BED4C0D4C1D4C2D4C3D4C4D4C5D4C6D4C7D4C8D4C9D4CAD4CCD4CDD4CED4CFD4D0D4D1D4D2D4D3D4D4D4D5D4D6D4D7D4DBD4DCD4DDD4DED4DFD4E0D4E1D4E2D4E3D4E4D4E5D4E6D4E7D4E8D4E9D4EAD4EBD4ECD4EDD4EED4EFD4F3D4F4D4F7D4F8D4F9D4FAD4FBD4FCD4FDD4FED5A1D5A2D5A3D5A4D5A5D5A6D5A7D5A8D5A9D5AAD5ABD5ACD5ADD5AED5AFD5B0D5B1D5B2D5B4D5B5D5B6D5B7D5B8D5B9D5BAD5BBD5BDD5BFD5C0D5C1D5C2D5C3D5C4D5C6D5C7D5C8D5C9D5CAD5CCD5CDD5CED5CFD5D0D5D1D5D3D5D4D5D6D5D7D5D8D5D9D5DAD5DBD5DCD5DDD5DED5DFD5E0D5E1D5E3D5E4D5E5D5E7D5E8D5E9D5EAD5EBD5ECD5EDD5EED5EFD5F0D5F1D5F2D5F3D5F4D5F5D5F6D5F7D5F8D5F9D5FAD5FCD5FED6A2D6A3D6A5D6A6D6A7D6A8D6A9D6AAD6ABD6ACD6ADD6AED6B0D6B2D6B3D6B6D6B9D6BAD6BCD6BDD6BED6BFD6C0D6C1D6C2D6C4D6C5D6C7D6C8D6C9D6CAD6CBD6CCD6CDD6CED6CFD6D1D6D2D6D3D6D4D6D7D6D9D6DAD6DBD6DCD6DDD6DED6DFD6E0D6E1D6E2D6E3D6E4D6E5D6E6D6E7D6E9D6EAD6EBD6ECD6EDD6EED6EFD6F0D6F1D6F2D6F3D6F4D6F5D6F6D6F8D6F9D6FAD6FBD6FCD6FDD6FED7A1D7A3D7A4D7A5D7A6D7A7D7A9D7ABD7ACD7ADD7AED7AFD7B1D7B2D7B3D7B5D7B6D7B7D7B8D7B9D7BBD7BDD7BED7BFD7C0D7C1D7C2D7C3D7C4D7C6D7C7D7C8D7C9D7CAD7CBD7CCD7CDD7CED7CFD7D0D7D1D7D2D7D5D7D7D7D8D7D9D7DAD7DBD7DCD7DDD7DED7E0D7E1D7E2D7E3D7E4D7E5D7E6D7E7D7E8D7EAD7EBD7ECD7EDD7EFD7F0D7F1D7F2D7F3D7F4D7F5D7F8D7F9D8A1D8A2D8A3D8A4D8A5D8A6D8A7D8A8D8A9D8AAD8ABD8ACD8ADD8AED8AFD8B0D8B1D8B2D8B3D8B4D8B5D8B6D8B7D8B8D8B9D8BAD8BBD8BCD8BDD8BED8BFD8C0D8C1D8C2D8C3D8C4D8C5D8C6D8C7D8C8D8C9D8CAD8CBD8CCD8CDD8CED8CFD8D0D8D1D8D2D8D3D8D4D8D5D8D6D8D7D8D8D8D9D8DAD8DBD8DCD8DDD8DED8DFD8E0D8E1D8E2D8E3D8E4D8E5D8E6D8E7D8E8D8E9D8EAD8EBD8ECD8EDD8EED8EFD8F0D8F1D8F2D8F3D8F4D8F5D8F6D8F7D8F8D8F9D8FAD8FBD8FCD8FDD8FED9A1D9A2D9A3D9A4D9A5D9A6D9A7D9A8D9A9D9AAD9ABD9ACD9ADD9AED9AFD9B0D9B1D9B2D9B3D9B4D9B5D9B6D9B7D9B8D9B9D9BAD9BBD9BCD9BDD9BED9BFD9C0D9C1D9C2D9C3D9C4D9C5D9C6D9C7D9C8D9C9D9CAD9CBD9CCD9CDD9CED9CFD9D0D9D1D9D2D9D3D9D4D9D5D9D6D9D7D9D8D9D9D9DAD9DBD9DCD9DDD9DED9DFD9E0D9E1D9E2D9E3D9E4D9E5D9E6D9E7D9E8D9E9D9EAD9EBD9ECD9EDD9EED9EFD9F0D9F1D9F2D9F3D9F4D9F5D9F6D9F7D9F8D9F9D9FAD9FBD9FCD9FDD9FEDAA1DAA2DAA3DAA4DAA5DAA6DAA7DAA8DAA9DAAADAABDAACDAADDAAEDAAFDAB0DAB1DAB2DAB3DAB4DAB5DAB6DAB7DAB8DAB9DABADABBDABCDABDDABEDABFDAC0DAC1DAC2DAC3DAC4DAC5DAC6DAC7DAC8DAC9DACADACBDACCDACDDACEDACFDAD0DAD1DAD2DAD3DAD4DAD5DAD6DAD7DAD8DAD9DADADADBDADCDADDDADEDADFDAE0DAE1DAE2DAE3DAE4DAE5DAE6DAE7DAE8DAE9DAEADAEBDAECDAEDDAEEDAEFDAF0DAF1DAF2DAF3DAF4DAF5DAF6DAF7DAF8DAF9DAFADAFBDAFCDAFDDAFEDBA1DBA2DBA3DBA4DBA5DBA6DBA7DBA8DBA9DBAADBABDBACDBADDBAEDBAFDBB0DBB1DBB2DBB3DBB4DBB5DBB6DBB7DBB8DBB9DBBADBBBDBBCDBBDDBBEDBBFDBC0DBC1DBC2DBC3DBC4DBC5DBC6DBC7DBC8DBC9DBCADBCBDBCCDBCDDBCEDBCFDBD0DBD1DBD2DBD3DBD4DBD5DBD6DBD7DBD8DBD9DBDADBDBDBDCDBDDDBDEDBDFDBE0DBE1DBE2DBE3DBE4DBE5DBE6DBE7DBE8DBE9DBEADBEBDBECDBEDDBEEDBEFDBF0DBF1DBF2DBF3DBF4DBF5DBF6DBF7DBF8DBF9DBFADBFBDBFCDBFDDBFEDCA1DCA2DCA3DCA4DCA5DCA6DCA7DCA8DCA9DCAADCABDCACDCADDCAEDCAFDCB0DCB1DCB2DCB3DCB4DCB5DCB6DCB7DCB8DCB9DCBADCBBDCBCDCBDDCBEDCBFDCC0DCC1DCC2DCC3DCC4DCC5DCC6DCC7DCC8DCC9DCCADCCBDCCCDCCDDCCEDCCFDCD0DCD1DCD2DCD3DCD4DCD5DCD6DCD7DCD8DCD9DCDADCDBDCDCDCDDDCDEDCDFDCE0DCE1DCE2DCE3DCE4DCE5DCE6DCE7DCE8DCE9DCEADCEBDCECDCEDDCEEDCEFDCF0DCF1DCF2DCF3DCF4DCF5DCF6DCF7DCF8DCF9DCFADCFBDCFCDCFDDCFEDDA1DDA2DDA3DDA4DDA5DDA6DDA7DDA8DDA9DDAADDABDDACDDADDDAEDDAFDDB0DDB1DDB2DDB3DDB4DDB5DDB6DDB7DDB8DDB9DDBADDBBDDBCDDBDDDBEDDBFDDC0DDC1DDC2DDC3DDC4DDC5DDC6DDC7DDC8DDC9DDCADDCBDDCCDDCDDDCEDDCFDDD0DDD1DDD2DDD3DDD4DDD5DDD6DDD7DDD8DDD9DDDADDDBDDDCDDDDDDDEDDDFDDE0DDE1DDE2DDE3DDE4DDE5DDE6DDE7DDE8DDE9DDEADDEBDDECDDEDDDEEDDEFDDF0DDF1DDF2DDF3DDF4DDF5DDF6DDF7DDF8DDF9DDFADDFBDDFCDDFDDDFEDEA1DEA2DEA3DEA4DEA5DEA6DEA7DEA8DEA9DEAADEABDEACDEADDEAEDEAFDEB0DEB1DEB2DEB3DEB4DEB5DEB6DEB7DEB8DEB9DEBADEBBDEBCDEBDDEBEDEBFDEC0DEC1DEC2DEC3DEC4DEC5DEC6DEC7DEC8DEC9DECADECBDECCDECDDECEDECFDED0DED1DED2DED3DED4DED5DED6DED7DED8DED9DEDADEDBDEDCDEDDDEDEDEDFDEE0DEE1DEE2DEE3DEE4DEE5DEE6DEE7DEE8DEE9DEEADEEBDEECDEEDDEEEDEEFDEF0DEF1DEF2DEF3DEF4DEF5DEF6DEF7DEF8DEF9DEFADEFBDEFCDEFDDEFEDFA1DFA2DFA3DFA4DFA5DFA6DFA7DFA8DFA9DFAADFABDFACDFADDFAEDFAFDFB0DFB1DFB2DFB3DFB4DFB5DFB6DFB7DFB8DFB9DFBADFBBDFBCDFBDDFBEDFBFDFC0DFC1DFC2DFC3DFC4DFC5DFC6DFC7DFC8DFC9DFCADFCBDFCCDFCDDFCEDFCFDFD0DFD1DFD2DFD3DFD4DFD5DFD6DFD7DFD8DFD9DFDADFDBDFDCDFDDDFDEDFDFDFE0DFE1DFE2DFE3DFE4DFE5DFE6DFE7DFE8DFE9DFEADFEBDFECDFEDDFEEDFEFDFF0DFF1DFF2DFF3DFF4DFF5DFF6DFF7DFF8DFF9DFFADFFBDFFCDFFDDFFEE0A1E0A2E0A3E0A4E0A5E0A6E0A7E0A8E0A9E0AAE0ABE0ACE0ADE0AEE0AFE0B0E0B1E0B2E0B3E0B4E0B5E0B6E0B7E0B8E0B9E0BAE0BBE0BCE0BDE0BEE0BFE0C0E0C1E0C2E0C3E0C4E0C5E0C6E0C7E0C8E0C9E0CAE0CBE0CCE0CDE0CEE0CFE0D0E0D1E0D2E0D3E0D4E0D5E0D6E0D7E0D8E0D9E0DAE0DBE0DCE0DDE0DEE0DFE0E0E0E1E0E2E0E3E0E4E0E5E0E6E0E7E0E8E0E9E0EAE0EBE0ECE0EDE0EEE0EFE0F0E0F1E0F2E0F3E0F4E0F5E0F6E0F7E0F8E0F9E0FAE0FBE0FCE0FDE0FEE1A1E1A2E1A3E1A4E1A5E1A6E1A7E1A8E1A9E1AAE1ABE1ACE1ADE1AEE1AFE1B0E1B1E1B2E1B3E1B4E1B5E1B6E1B7E1B8E1B9E1BAE1BBE1BCE1BDE1BEE1BFE1C0E1C1E1C2E1C3E1C4E1C5E1C6E1C7E1C8E1C9E1CAE1CBE1CCE1CDE1CEE1CFE1D0E1D1E1D2E1D3E1D4E1D5E1D6E1D7E1D8E1D9E1DAE1DBE1DCE1DDE1DEE1DFE1E0E1E1E1E2E1E3E1E4E1E5E1E6E1E7E1E8E1E9E1EAE1EBE1ECE1EDE1EEE1EFE1F0E1F1E1F2E1F3E1F4E1F5E1F6E1F7E1F8E1F9E1FAE1FBE1FCE1FDE1FEE2A1E2A2E2A3E2A4E2A5E2A6E2A7E2A8E2A9E2AAE2ABE2ACE2ADE2AEE2AFE2B0E2B1E2B2E2B3E2B4E2B5E2B6E2B7E2B8E2B9E2BAE2BBE2BCE2BDE2BEE2BFE2C0E2C1E2C2E2C3E2C4E2C5E2C6E2C7E2C8E2C9E2CAE2CBE2CCE2CDE2CEE2CFE2D0E2D1E2D2E2D3E2D4E2D5E2D6E2D7E2D8E2D9E2DAE2DBE2DCE2DDE2DEE2DFE2E0E2E1E2E2E2E3E2E4E2E5E2E6E2E7E2E8E2E9E2EAE2EBE2ECE2EDE2EEE2EFE2F0E2F1E2F2E2F3E2F4E2F5E2F6E2F7E2F8E2F9E2FAE2FBE2FCE2FDE2FEE3A1E3A2E3A3E3A4E3A5E3A6E3A7E3A8E3A9E3AAE3ABE3ACE3ADE3AEE3AFE3B0E3B1E3B2E3B3E3B4E3B5E3B6E3B7E3B8E3B9E3BAE3BBE3BCE3BDE3BEE3BFE3C0E3C1E3C2E3C3E3C4E3C5E3C6E3C7E3C8E3C9E3CAE3CBE3CCE3CDE3CEE3CFE3D0E3D1E3D2E3D3E3D4E3D5E3D6E3D7E3D8E3D9E3DAE3DBE3DCE3DDE3DEE3DFE3E0E3E1E3E2E3E3E3E4E3E5E3E6E3E7E3E8E3E9E3EAE3EBE3ECE3EDE3EEE3EFE3F0E3F1E3F2E3F3E3F4E3F5E3F6E3F7E3F8E3F9E3FAE3FBE3FCE3FDE3FEE4A1E4A2E4A3E4A4E4A5E4A6E4A7E4A8E4A9E4AAE4ABE4ACE4ADE4AEE4AFE4B0E4B1E4B2E4B3E4B4E4B5E4B6E4B7E4B8E4B9E4BAE4BBE4BCE4BDE4BEE4BFE4C0E4C1E4C2E4C3E4C4E4C5E4C6E4C7E4C8E4C9E4CAE4CBE4CCE4CDE4CEE4CFE4D0E4D1E4D2E4D3E4D4E4D5E4D6E4D7E4D8E4D9E4DAE4DBE4DCE4DDE4DEE4DFE4E0E4E1E4E2E4E3E4E4E4E5E4E6E4E7E4E8E4E9E4EAE4EBE4ECE4EDE4EEE4EFE4F0E4F1E4F2E4F3E4F4E4F5E4F6E4F7E4F8E4F9E4FAE4FBE4FCE4FDE4FEE5A1E5A2E5A3E5A4E5A5E5A6E5A7E5A8E5A9E5AAE5ABE5ACE5ADE5AEE5AFE5B0E5B1E5B2E5B3E5B4E5B5E5B6E5B7E5B8E5B9E5BAE5BBE5BCE5BDE5BEE5BFE5C0E5C1E5C2E5C3E5C4E5C5E5C6E5C7E5C8E5C9E5CAE5CBE5CCE5CDE5CEE5CFE5D0E5D1E5D2E5D3E5D4E5D5E5D6E5D7E5D8E5D9E5DAE5DBE5DCE5DDE5DEE5DFE5E0E5E1E5E2E5E3E5E4E5E5E5E6E5E7E5E8E5E9E5EAE5EBE5ECE5EDE5EEE5EFE5F0E5F1E5F2E5F3E5F4E5F5E5F6E5F7E5F8E5F9E5FAE5FBE5FCE5FDE5FEE6A1E6A2E6A3E6A4E6A5E6A6E6A7E6A8E6A9E6AAE6ABE6ACE6ADE6AEE6AFE6B0E6B1E6B2E6B3E6B4E6B5E6B6E6B7E6B8E6B9E6BAE6BBE6BCE6BDE6BEE6BFE6C0E6C1E6C2E6C3E6C4E6C5E6C6E6C7E6C8E6C9E6CAE6CBE6CCE6CDE6CEE6CFE6D0E6D1E6D2E6D3E6D4E6D5E6D6E6D7E6D8E6D9E6DAE6DBE6DCE6DDE6DEE6DFE6E0E6E1E6E2E6E3E6E4E6E5E6E6E6E7E6E8E6E9E6EAE6EBE6ECE6EDE6EEE6EFE6F0E6F1E6F2E6F3E6F4E6F5E6F6E6F7E6F8E6F9E6FAE6FBE6FCE6FDE6FEE7A1E7A2E7A3E7A4E7A5E7A6E7A7E7A8E7A9E7AAE7ABE7ACE7ADE7AEE7AFE7B0E7B1E7B2E7B3E7B4E7B5E7B6E7B7E7B8E7B9E7BAE7BBE7BCE7BDE7BEE7BFE7C0E7C1E7C2E7C3E7C4E7C5E7C6E7C7E7C8E7C9E7CAE7CBE7CCE7CDE7CEE7CFE7D0E7D1E7D2E7D3E7D4E7D5E7D6E7D7E7D8E7D9E7DAE7DBE7DCE7DDE7DEE7DFE7E0E7E1E7E2E7E3E7E4E7E5E7E6E7E7E7E8E7E9E7EAE7EBE7ECE7EDE7EEE7EFE7F0E7F1E7F2E7F3E7F4E7F5E7F6E7F7E7F8E7F9E7FAE7FBE7FCE7FDE7FEE8A1E8A2E8A3E8A4E8A5E8A6E8A7E8A8E8A9E8AAE8ABE8ACE8ADE8AEE8AFE8B0E8B1E8B2E8B3E8B4E8B5E8B6E8B7E8B8E8B9E8BAE8BBE8BCE8BDE8BEE8BFE8C0E8C1E8C2E8C3E8C4E8C5E8C6E8C7E8C8E8C9E8CAE8CBE8CCE8CDE8CEE8CFE8D0E8D1E8D2E8D3E8D4E8D5E8D6E8D7E8D8E8D9E8DAE8DBE8DCE8DDE8DEE8DFE8E0E8E1E8E2E8E3E8E4E8E5E8E6E8E7E8E8E8E9E8EAE8EBE8ECE8EDE8EEE8EFE8F0E8F1E8F2E8F3E8F4E8F5E8F6E8F7E8F8E8F9E8FAE8FBE8FCE8FDE8FEE9A1E9A2E9A3E9A4E9A5E9A6E9A7E9A8E9A9E9AAE9ABE9ACE9ADE9AEE9AFE9B0E9B1E9B2E9B3E9B4E9B5E9B6E9B7E9B8E9B9E9BAE9BBE9BCE9BDE9BEE9BFE9C0E9C1E9C2E9C3E9C4E9C5E9C6E9C7E9C8E9C9E9CAE9CBE9CCE9CDE9CEE9CFE9D0E9D1E9D2E9D3E9D4E9D5E9D6E9D7E9D8E9D9E9DAE9DBE9DCE9DDE9DEE9DFE9E0E9E1E9E2E9E3E9E4E9E5E9E6E9E7E9E8E9E9E9EAE9EBE9ECE9EDE9EEE9EFE9F0E9F1E9F2E9F3E9F4E9F5E9F6E9F7E9F8E9F9E9FAE9FBE9FCE9FDE9FEEAA1EAA2EAA3EAA4EAA5EAA6EAA7EAA8EAA9EAAAEAABEAACEAADEAAEEAAFEAB0EAB1EAB2EAB3EAB4EAB5EAB6EAB7EAB8EAB9EABAEABBEABCEABDEABEEABFEAC0EAC1EAC2EAC3EAC4EAC5EAC6EAC7EAC8EAC9EACAEACBEACCEACDEACEEACFEAD0EAD1EAD2EAD3EAD4EAD5EAD6EAD7EAD8EAD9EADAEADBEADCEADDEADEEADFEAE0EAE1EAE2EAE3EAE4EAE5EAE6EAE7EAE8EAE9EAEAEAEBEAECEAEDEAEEEAEFEAF0EAF1EAF2EAF3EAF4EAF5EAF6EAF7EAF8EAF9EAFAEAFBEAFCEAFDEAFEEBA1EBA2EBA3EBA4EBA5EBA6EBA7EBA8EBA9EBAAEBABEBACEBADEBAEEBAFEBB0EBB1EBB2EBB3EBB4EBB5EBB6EBB7EBB8EBB9EBBAEBBBEBBCEBBDEBBEEBBFEBC0EBC1EBC2EBC3EBC4EBC5EBC6EBC7EBC8EBC9EBCAEBCBEBCCEBCDEBCEEBCFEBD0EBD1EBD2EBD3EBD4EBD5EBD6EBD7EBD8EBD9EBDAEBDBEBDCEBDDEBDEEBDFEBE0EBE1EBE2EBE3EBE4EBE5EBE6EBE7EBE8EBE9EBEAEBEBEBECEBEDEBEEEBEFEBF0EBF1EBF2EBF3EBF4EBF5EBF6EBF7EBF8EBF9EBFAEBFBEBFCEBFDEBFEECA1ECA2ECA3ECA4ECA5ECA6ECA7ECA8ECA9ECAAECABECACECADECAEECAFECB0ECB1ECB2ECB3ECB4ECB5ECB6ECB7ECB8ECB9ECBAECBBECBCECBDECBEECBFECC0ECC1ECC2ECC3ECC4ECC5ECC6ECC7ECC8ECC9ECCAECCBECCCECCDECCEECCFECD0ECD1ECD2ECD3ECD4ECD5ECD6ECD7ECD8ECD9ECDAECDBECDCECDDECDEECDFECE0ECE1ECE2ECE3ECE4ECE5ECE6ECE7ECE8ECE9ECEAECEBECECECEDECEEECEFECF0ECF1ECF2ECF3ECF4ECF5ECF6ECF7ECF8ECF9ECFAECFBECFCECFDECFEEDA1EDA2EDA3EDA4EDA5EDA6EDA7EDA8EDA9EDAAEDABEDACEDADEDAEEDAFEDB0EDB1EDB2EDB3EDB4EDB5EDB6EDB7EDB8EDB9EDBAEDBBEDBCEDBDEDBEEDBFEDC0EDC1EDC2EDC3EDC4EDC5EDC6EDC7EDC8EDC9EDCAEDCBEDCCEDCDEDCEEDCFEDD0EDD1EDD2EDD3EDD4EDD5EDD6EDD7EDD8EDD9EDDAEDDBEDDCEDDDEDDEEDDFEDE0EDE1EDE2EDE3EDE4EDE5EDE6EDE7EDE8EDE9EDEAEDEBEDECEDEDEDEEEDEFEDF0EDF1EDF2EDF3EDF4EDF5EDF6EDF7EDF8EDF9EDFAEDFBEDFCEDFDEDFEEEA1EEA2EEA3EEA4EEA5EEA6EEA7EEA8EEA9EEAAEEABEEACEEADEEAEEEAFEEB0EEB1EEB2EEB3EEB4EEB5EEB6EEB7EEB8EEB9EEBAEEBBEEBCEEBDEEBEEEBFEEC0EEC1EEC2EEC3EEC4EEC5EEC6EEC7EEC8EEC9EECAEECBEECCEECDEECEEECFEED0EED1EED2EED3EED4EED5EED6EED7EED8EED9EEDAEEDBEEDCEEDDEEDEEEDFEEE0EEE1EEE2EEE3EEE4EEE5EEE6EEE7EEE8EEE9EEEAEEEBEEECEEEDEEEEEEEFEEF0EEF1EEF2EEF3EEF4EEF5EEF6EEF7EEF8EEF9EEFAEEFBEEFCEEFDEEFEEFA1EFA2EFA3EFA4EFA5EFA6EFA7EFA8EFA9EFAAEFABEFACEFADEFAEEFAFEFB0EFB1EFB2EFB3EFB4EFB5EFB6EFB7EFB8EFB9EFBAEFBBEFBCEFBDEFBEEFBFEFC0EFC1EFC2EFC3EFC4EFC5EFC6EFC7EFC8EFC9EFCAEFCBEFCCEFCDEFCEEFCFEFD0EFD1EFD2EFD3EFD4EFD5EFD6EFD7EFD8EFD9EFDAEFDBEFDCEFDDEFDEEFDFEFE0EFE1EFE2EFE3EFE4EFE5EFE6EFE7EFE8EFE9EFEAEFEBEFECEFEDEFEEEFEFEFF0EFF1EFF2EFF3EFF4EFF5EFF6EFF7EFF8EFF9EFFAEFFBEFFCEFFDEFFEF0A1F0A2F0A3F0A4F0A5F0A6F0A7F0A8F0A9F0AAF0ABF0ACF0ADF0AEF0AFF0B0F0B1F0B2F0B3F0B4F0B5F0B6F0B7F0B8F0B9F0BAF0BBF0BCF0BDF0BEF0BFF0C0F0C1F0C2F0C3F0C4F0C5F0C6F0C7F0C8F0C9F0CAF0CBF0CCF0CDF0CEF0CFF0D0F0D1F0D2F0D3F0D4F0D5F0D6F0D7F0D8F0D9F0DAF0DBF0DCF0DDF0DEF0DFF0E0F0E1F0E2F0E3F0E4F0E5F0E6F0E7F0E8F0E9F0EAF0EBF0ECF0EDF0EEF0EFF0F0F0F1F0F2F0F3F0F4F0F5F0F6F0F7F0F8F0F9F0FAF0FBF0FCF0FDF0FEF1A1F1A2F1A3F1A4F1A5F1A6F1A7F1A8F1A9F1AAF1ABF1ACF1ADF1AEF1AFF1B0F1B1F1B2F1B3F1B4F1B5F1B6F1B7F1B8F1B9F1BAF1BBF1BCF1BDF1BEF1BFF1C0F1C1F1C2F1C3F1C4F1C5F1C6F1C7F1C8F1C9F1CAF1CBF1CCF1CDF1CEF1CFF1D0F1D1F1D2F1D3F1D4F1D5F1D6F1D7F1D8F1D9F1DAF1DBF1DCF1DDF1DEF1DFF1E0F1E1F1E2F1E3F1E4F1E5F1E6F1E7F1E8F1E9F1EAF1EBF1ECF1EDF1EEF1EFF1F0F1F1F1F2F1F3F1F4F1F5F1F6F1F7F1F8F1F9F1FAF1FBF1FCF1FDF1FEF2A1F2A2F2A3F2A4F2A5F2A6F2A7F2A8F2A9F2AAF2ABF2ACF2ADF2AEF2AFF2B0F2B1F2B2F2B3F2B4F2B5F2B6F2B7F2B8F2B9F2BAF2BBF2BCF2BDF2BEF2BFF2C0F2C1F2C2F2C3F2C4F2C5F2C6F2C7F2C8F2C9F2CAF2CBF2CCF2CDF2CEF2CFF2D0F2D1F2D2F2D3F2D4F2D5F2D6F2D7F2D8F2D9F2DAF2DBF2DCF2DDF2DEF2DFF2E0F2E1F2E2F2E3F2E4F2E5F2E6F2E7F2E8F2E9F2EAF2EBF2ECF2EDF2EEF2EFF2F0F2F1F2F2F2F3F2F4F2F5F2F6F2F7F2F8F2F9F2FAF2FBF2FCF2FDF2FEF3A1F3A2F3A3F3A4F3A5F3A6F3A7F3A8F3A9F3AAF3ABF3ACF3ADF3AEF3AFF3B0F3B1F3B2F3B3F3B4F3B5F3B6F3B7F3B8F3B9F3BAF3BBF3BCF3BDF3BEF3BFF3C0F3C1F3C2F3C3F3C4F3C5F3C6F3C7F3C8F3C9F3CAF3CBF3CCF3CDF3CEF3CFF3D0F3D1F3D2F3D3F3D4F3D5F3D6F3D7F3D8F3D9F3DAF3DBF3DCF3DDF3DEF3DFF3E0F3E1F3E2F3E3F3E4F3E5F3E6F3E7F3E8F3E9F3EAF3EBF3ECF3EDF3EEF3EFF3F0F3F1F3F2F3F3F3F4F3F5F3F6F3F7F3F8F3F9F3FAF3FBF3FCF3FDF3FEF4A1F4A2F4A3F4A4F4A5F4A6F4A7F4A8F4A9F4AAF4ABF4ACF4ADF4AEF4AFF4B0F4B1F4B2F4B3F4B4F4B5F4B6F4B7F4B8F4B9F4BAF4BBF4BCF4BDF4BEF4BFF4C0F4C1F4C2F4C3F4C4F4C5F4C6F4C7F4C8F4C9F4CAF4CBF4CCF4CDF4CEF4CFF4D0F4D1F4D2F4D3F4D4F4D5F4D6F4D7F4D8F4D9F4DAF4DBF4DCF4DDF4DEF4DFF4E0F4E1F4E2F4E3F4E4F4E5F4E6F4E7F4E8F4E9F4EAF4EBF4ECF4EDF4EEF4EFF4F0F4F1F4F2F4F3F4F4F4F5F4F6F4F7F4F8F4F9F4FAF4FBF4FCF4FDF4FEF5A1F5A2F5A3F5A4F5A5F5A6F5A7F5A8F5A9F5AAF5ABF5ACF5ADF5AEF5AFF5B0F5B1F5B2F5B3F5B4F5B5F5B6F5B7F5B8F5B9F5BAF5BBF5BCF5BDF5BEF5BFF5C0F5C1F5C2F5C3F5C4F5C5F5C6F5C7F5C8F5C9F5CAF5CBF5CCF5CDF5CEF5CFF5D0F5D1F5D2F5D3F5D4F5D5F5D6F5D7F5D8F5D9F5DAF5DBF5DCF5DDF5DEF5DFF5E0F5E1F5E2F5E3F5E4F5E5F5E6F5E7F5E8F5E9F5EAF5EBF5ECF5EDF5EEF5EFF5F0F5F1F5F2F5F3F5F4F5F5F5F6F5F7F5F8F5F9F5FAF5FBF5FCF5FDF5FEF6A1F6A2F6A3F6A4F6A5F6A6F6A7F6A8F6A9F6AAF6ABF6ACF6ADF6AEF6AFF6B0F6B1F6B2F6B3F6B4F6B5F6B6F6B7F6B8F6B9F6BAF6BBF6BCF6BDF6BEF6BFF6C0F6C1F6C2F6C3F6C4F6C5F6C6F6C7F6C8F6C9F6CAF6CBF6CCF6CDF6CEF6CFF6D0F6D1F6D2F6D3F6D4F6D5F6D6F6D7F6D8F6D9F6DAF6DBF6DCF6DDF6DEF6DFF6E0F6E1F6E2F6E3F6E4F6E5F6E6F6E7F6E8F6E9F6EAF6EBF6ECF6EDF6EEF6EFF6F0F6F1F6F2F6F3F6F4F6F5F6F6F6F7F6F8F6F9F6FAF6FBF6FCF6FDF6FEF7A1F7A2F7A3F7A4F7A5F7A6F7A7F7A8F7A9F7AAF7ABF7ACF7ADF7AEF7AFF7B0F7B1F7B2F7B3F7B4F7B5F7B6F7B7F7B8F7B9F7BAF7BBF7BCF7BDF7BEF7BFF7C0F7C1F7C2F7C3F7C4F7C5F7C6F7C7F7C8F7C9F7CAF7CBF7CCF7CDF7CEF7CFF7D0F7D1F7D2F7D3F7D4F7D5F7D6F7D7F7D8F7D9F7DAF7DBF7DCF7DDF7DEF7DFF7E0F7E1F7E2F7E3F7E4F7E5F7E6F7E7F7E8F7E9F7EAF7EBF7ECF7EDF7EEF7EFF7F0F7F1F7F2F7F3F7F4F7F5F7F6F7F7F7F8F7F9F7FAF7FBF7FCF7FDF7FE";
+
+/* ============================================================
+   配置全部放在同目录的 config.js 里，这里只负责读取，不要在这改。
+   config.js 没加载成功（比如忘了一起拷）时回落到默认值，页面照常能用。
+   ============================================================ */
+var CFG = (typeof window !== 'undefined' && window.KMS_CONFIG) ? window.KMS_CONFIG : null;
+var KMS_HOST = CFG ? String(CFG.host || '') : '';
+
+/* ============================================================
+   命令模板
+   ------------------------------------------------------------
+   Windows 客户端与服务器都是同一套 slmgr 命令，Office 用 ospp，
+   抽成两个函数，下面 40 多个产品就不用各抄一遍长字符串。
+   {h} 会被替换成 config.js 里的 KMS 地址，
+   XXXXX-XXXXX-XXXXX-XXXXX-XXXXX 会被对应的密钥替换。
+   ============================================================ */
+function winCmd() {
+  return 'cscript //nologo C:\\Windows\\System32\\slmgr.vbs /skms {h}\n' +
+    'cscript //nologo C:\\Windows\\System32\\slmgr.vbs /ipk XXXXX-XXXXX-XXXXX-XXXXX-XXXXX\n' +
+    'cscript //nologo C:\\Windows\\System32\\slmgr.vbs /ato\n' +
+    'cscript //nologo C:\\Windows\\System32\\slmgr.vbs /xpr';
+}
+/* Office：ospp.vbs 必须在 Office16 目录里执行，而安装路径有 4 种可能，
+   所以第一行不是写死的 cd，而是 4 条 if exist 探测（由 config.js 的 OFFICE_CD 提供）。 */
+function offCmd() {
+  var cd = (typeof OFFICE_CD === 'string' && OFFICE_CD)
+    ? OFFICE_CD
+    : 'if exist "C:\\Program Files\\Microsoft Office\\root\\Office16\\ospp.vbs" pushd "C:\\Program Files\\Microsoft Office\\root\\Office16"';
+  return cd + '\n' +
+    'cscript //nologo ospp.vbs /inpkey:XXXXX-XXXXX-XXXXX-XXXXX-XXXXX\n' +
+    'cscript //nologo ospp.vbs /sethst:{h}\n' +
+    'cscript //nologo ospp.vbs /act\n' +
+    'cscript //nologo ospp.vbs /dstatus';
+}
+/* ============================================================
+   目录数据全部来自 config.js 的 catalog 字段，本文件不再内嵌产品。
+   增删类型 / 版本 / 产品，只改 config.js。
+   ============================================================ */
+const CATALOG = (CFG && CFG.catalog && CFG.catalog.length) ? CFG.catalog : [];
+
+/* 补齐默认字段：kind 决定用 slmgr 还是 ospp，没写 tpl 的产品自动套模板 */
+(function () {
+  CATALOG.forEach(function (t) {
+    var kind = t.kind || 'win';
+    (t.versions || []).forEach(function (v) {
+      (v.products || []).forEach(function (p) {
+        p.kind = kind;
+        if (!p.tpl) p.tpl = (kind === 'office') ? offCmd() : winCmd();
+      });
+    });
+  });
+})();
+
+/* ============================================================
+   逻辑
+   ============================================================ */
+(function () {
+  /* 地址由页面顶部的 KMS_HOST 提供，访客无需填写 */
+  var HOST = String(typeof KMS_HOST === 'string' ? KMS_HOST : '')
+    .trim()
+    .replace(/^(https?:\/\/)/i, '')
+    .replace(/\/+$/, '');
+  var HOST_FALLBACK = 'kms.example.local';
+  var KEY_PH = 'XXXXX-XXXXX-XXXXX-XXXXX-XXXXX';
+
+  /* 密钥直接写在产品的 key 字段上；没写就返回空串，页面继续显示占位符 */
+  function keyOf(p) {
+    return (p && p.key) ? String(p.key).trim() : '';
+  }
+
+  var SEL = { 1: document.getElementById('sel1'), 2: document.getElementById('sel2'), 3: document.getElementById('sel3') };
+  var FIELD = { 2: document.getElementById('field2'), 3: document.getElementById('field3') };
+  var stepsEl = document.getElementById('steps');
+  var resultEl = document.getElementById('result');
+  var rName = document.getElementById('rName');
+  var rPath = document.getElementById('rPath');
+  var rCode = document.getElementById('rCode');
+  var rNote = document.getElementById('rNote');
+  var rCmdTip = document.getElementById('rCmdTip');
+  var btnCopy = document.getElementById('btnCopy');
+  var btnReset = document.getElementById('btnReset');
+  var todayEl = document.getElementById('todayCount');
+  var state = { type: null, version: null, product: null };
+
+  /* 进场动画统一用 WAAPI：只动 transform / opacity，走合成层。
+     不再用「style.animation 置空 + 读 offsetWidth」那套强制同步重排的写法，
+     那种写法会先按终态画一帧再重播，看上去就是一闪 + 顿一下。 */
+  var canAnim = !!(window.Element && Element.prototype.animate);
+  var reducedMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  var resultAnim = null;
+  function play(el, frames, opts) {
+    if (!canAnim || reducedMotion) return null;
+    try { return el.animate(frames, opts); } catch (e) { return null; }
+  }
+  var EASE = 'cubic-bezier(.22,1,.36,1)';
+
+  /* ---------- 今日计数 ---------- */
+  var ckey = 'kms_gen_' + new Date().toISOString().slice(0, 10);
+  /* 纯静态页面常被 file:// 直接打开，个别环境会禁用 localStorage，
+     这里吞掉异常，计数读不到就当 0，不影响主流程 */
+  function readCount() {
+    try { var n = parseInt(localStorage.getItem(ckey) || '0', 10); return isNaN(n) ? 0 : n; }
+    catch (e) { return 0; }
+  }
+  function bumpCount() {
+    var n = readCount() + 1;
+    try { localStorage.setItem(ckey, String(n)); } catch (e) {}
+    todayEl.textContent = n;
+  }
+  todayEl.textContent = readCount();
+
+  /* 公告条文案：配了密钥就别再说「本页不含产品密钥」；目录读不到要显性告警 */
+  (function () {
+    var el = document.getElementById('bannerTxt');
+    if (!el) return;
+    if (!CATALOG.length) {
+      el.textContent = '没读到 config.js 的目录数据：请确认它和本页在同一目录，且 catalog 数组没写错。';
+      el.style.color = '#ffb38a';
+      return;
+    }
+    var hasKey = false;
+    CATALOG.forEach(function (t) {
+      (t.versions || []).forEach(function (v) {
+        (v.products || []).forEach(function (p) { if (p.key) hasKey = true; });
+      });
+    });
+    if (hasKey) {
+      el.textContent = '仅用于组织内部已获微软批量授权的设备；本页命令已带组织密钥，请勿把本页地址外传。';
+    }
+  })();
+
+  /* ---------- 步骤指示 ---------- */
+  function setStep(step) {
+    Array.prototype.forEach.call(stepsEl.querySelectorAll('.step'), function (s) {
+      var n = parseInt(s.getAttribute('data-step'), 10);
+      var c = s.querySelector('.step-circle');
+      s.classList.remove('active', 'completed');
+      if (n < step) {
+        s.classList.add('completed');
+        c.textContent = '✓';
+        s.setAttribute('aria-disabled', 'false');
+      } else if (n === step) {
+        s.classList.add('active');
+        c.textContent = s.getAttribute('data-num');
+        s.setAttribute('aria-disabled', 'true');
+      } else {
+        c.textContent = s.getAttribute('data-num');
+        s.setAttribute('aria-disabled', 'true');
+      }
+    });
+    Array.prototype.forEach.call(stepsEl.querySelectorAll('.step-line'), function (l) {
+      l.classList.toggle('active', parseInt(l.getAttribute('data-line'), 10) < step);
+    });
+  }
+
+  /* ---------- 下拉填充 ---------- */
+  function fill(sel, placeholder, items) {
+    sel.innerHTML = '';
+    var o = document.createElement('option');
+    o.value = ''; o.textContent = placeholder;
+    sel.appendChild(o);
+    items.forEach(function (it) {
+      var op = document.createElement('option');
+      op.value = it.id; op.textContent = it.name;
+      sel.appendChild(op);
+    });
+    sel.value = '';
+    sel.classList.add('placeholder');
+  }
+
+  function showField(n) {
+    var f = FIELD[n];
+    f.classList.remove('hide');
+    play(f, [{ opacity: 0, transform: 'translateY(-6px)' }, { opacity: 1, transform: 'none' }],
+      { duration: 180, easing: 'cubic-bezier(.22,1,.36,1)' });
+  }
+  function hideField(n) {
+    FIELD[n].classList.add('hide');
+    SEL[n].value = '';
+  }
+  function hideResult() { resultEl.hidden = true; }
+
+  /* 第 1 步 */
+  fill(SEL[1], '请选择类型', CATALOG);
+
+  SEL[1].addEventListener('change', function () {
+    var id = SEL[1].value;
+    SEL[1].classList.toggle('placeholder', !id);
+    hideField(2); hideField(3); hideResult();
+    state.type = null; state.version = null; state.product = null;
+    if (!id) { setStep(0); return; }
+    state.type = CATALOG.filter(function (t) { return t.id === id; })[0];
+    fill(SEL[2], '请选择版本', state.type.versions);
+    showField(2);
+    setStep(2);
+  });
+
+  /* 第 2 步 */
+  SEL[2].addEventListener('change', function () {
+    var id = SEL[2].value;
+    SEL[2].classList.toggle('placeholder', !id);
+    hideField(3); hideResult();
+    state.version = null; state.product = null;
+    if (!id) { setStep(2); return; }
+    state.version = state.type.versions.filter(function (v) { return v.id === id; })[0];
+    fill(SEL[3], '请选择产品', state.version.products);
+    showField(3);
+    setStep(3);
+  });
+
+  /* 第 3 步 */
+  SEL[3].addEventListener('change', function () {
+    var id = SEL[3].value;
+    SEL[3].classList.toggle('placeholder', !id);
+    if (!id) { hideResult(); setStep(3); return; }
+    state.product = state.version.products.filter(function (p) { return p.id === id; })[0];
+    setStep(4);
+    renderResult(true);
+  });
+
+  function renderResult(shouldCount) {
+    var p = state.product;
+    if (!p) return;
+    rName.textContent = p.name;
+    rPath.innerHTML = '<b>' + state.type.name + '</b> / <b>' + state.version.name + '</b>';
+    var kv = keyOf(p);
+    rCode.textContent = p.tpl.split('{h}').join(HOST || HOST_FALLBACK).split(KEY_PH).join(kv || KEY_PH);
+
+    /* 执行说明放在代码框外面，框里只留能直接粘的命令 */
+    btnCopy.textContent = '复制命令';
+    btnCopy.classList.remove('ok');
+    var hasKeyLine = p.tpl.indexOf(KEY_PH) !== -1;
+    var keyArg = p.tpl.indexOf('ospp.vbs') !== -1 ? '/inpkey' : '/ipk';
+    var tip = '在「命令提示符（管理员）」中粘贴执行。';
+    if (hasKeyLine && !kv) tip += '<code>' + keyArg + '</code> 那行的 XXXXX 换成密钥，只需一次。';
+    if (p.kind === 'office') tip += '前 4 行是在自动找 Office 的安装目录，本机没有的那几条会自动跳过，不用管。';
+    rCmdTip.innerHTML = tip;
+
+    if (!HOST) {
+      rNote.className = 'note warn-note';
+      rNote.hidden = false;
+      rNote.textContent = CFG
+        ? '管理员还没在 config.js 里填 KMS 地址，命令里是占位符，请联系管理员。'
+        : '没读到 config.js，命令里是占位地址。请确认它和本页放在同一个目录。';
+    } else if (p.note) {
+      rNote.className = 'note';
+      rNote.hidden = false;
+      rNote.textContent = p.note;
+    } else {
+      rNote.hidden = true;
+    }
+
+    resultEl.hidden = false;
+    if (resultAnim) resultAnim.cancel();
+    resultAnim = play(resultEl, [{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }],
+      { duration: 240, easing: EASE });
+
+    if (shouldCount) bumpCount();
+    /* 结果卡在视口下方时才滚动，且等这一帧画完再滚，避免和进场动画抢帧 */
+    requestAnimationFrame(function () {
+      try {
+        var rTop = resultEl.getBoundingClientRect().top;
+        if (rTop > window.innerHeight - 160) {
+          var navH = (document.querySelector('.nav') || {}).offsetHeight || 64;
+          window.scrollBy({ top: rTop - navH - 16, behavior: 'smooth' });
+        }
+      } catch (e) {}
+    });
+  }
+
+  /* ---------- 复制 ---------- */
+  function copyText(text, btn, okText) {
+    var old = btn.textContent;
+    function done() {
+      btn.textContent = okText || '已复制';
+      btn.classList.add('ok');
+      setTimeout(function () { btn.textContent = old; btn.classList.remove('ok'); }, 1500);
+    }
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); done(); } catch (e) { alert('复制失败，请手动选中'); }
+      document.body.removeChild(ta);
+    }
+    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(done, fallback);
+    else fallback();
+  }
+
+  btnCopy.addEventListener('click', function () {
+    copyText(rCode.textContent, btnCopy, HOST ? '已复制' : '已复制（占位符）');
+  });
+
+  /* ---------- 生成 .bat ----------
+     Windows 的 cmd 默认按 GBK(936) 读批处理文件，UTF-8 的中文会被解析错乱
+     （实测 echo 后面接某些汉字会整行失效），所以下载的 bat 必须写成 GBK 字节。
+     下面用一张字符→GBK 码表做转换，只收录本页用到的字符。
+  ---------------------------------- */
+  var GBK = {};
+  (function () {
+    for (var i = 0; i < GBK_CHARS.length; i++) {
+      GBK[GBK_CHARS.charAt(i)] = [
+        parseInt(GBK_HEX.substr(i * 4, 2), 16),
+        parseInt(GBK_HEX.substr(i * 4 + 2, 2), 16)
+      ];
+    }
+  })();
+
+  function toGbk(str) {
+    var out = [];
+    for (var i = 0; i < str.length; i++) {
+      var ch = str.charAt(i), code = str.charCodeAt(i);
+      if (code < 0x80) { out.push(code); continue; }   // ASCII 原样（含 \r\n）
+      var pair = GBK[ch];
+      if (pair) { out.push(pair[0], pair[1]); }
+      else {
+        out.push(0x3F);                                  // 表里没有就落成 ?
+        if (!GBK.warned) GBK.warned = {};
+        if (!GBK.warned[ch]) { GBK.warned[ch] = 1; if (window.console) console.warn('[GBK 表] 缺少字符「' + ch + '」，bat 里会变成 ?，请重新运行 gen_gbk_table.js'); }
+      }
+    }
+    return new Uint8Array(out);
+  }
+
+  function buildBat(p) {
+    var addr = HOST || HOST_FALLBACK;
+    var title = state.version.name + ' ' + p.name;
+
+    /* 取真实命令行：跳过页面上的 :: 提示行和空行，{h} 换成地址 */
+    var cmds = p.tpl.split('\n').filter(function (l) {
+      var t = l.trim();
+      return t && t.indexOf('::') !== 0;
+    }).map(function (l) {
+      return l.split('{h}').join(addr).split(KEY_PH).join(keyOf(p) || KEY_PH);
+    });
+
+    /* 仍是占位符的密钥行（产品没配 key）：bat 里默认注释掉，
+       否则脚本会拿着假密钥去执行 /ipk，徒增一条报错 */
+    var body = [];
+    var hasKeyLine = false;
+    for (var k = 0; k < cmds.length; k++) {
+      if (cmds[k].indexOf(KEY_PH) !== -1) {
+        hasKeyLine = true;
+        body.push('rem 装密钥用：去掉下一行的 rem，并把 XXXXX 换成你的密钥');
+        body.push('rem ' + cmds[k]);
+      } else {
+        body.push(cmds[k]);
+      }
+    }
+
+    var L = [];
+    L.push('@echo off');
+    L.push('chcp 936 >nul');
+    L.push('title ' + title);
+    L.push('setlocal');
+    L.push('rem ============================================================');
+    L.push('rem  ' + title);
+    L.push('rem  服务器：' + addr);
+    L.push('rem  本脚本会自动申请管理员权限，弹窗时请点「是」');
+    L.push('rem ============================================================');
+    L.push('');
+    /* 提权：已经是管理员就直接跑，否则拉起一个提权后的自己 */
+    L.push('net session >nul 2>&1');
+    L.push('if %errorlevel% neq 0 (');
+    L.push('    echo.');
+    L.push('    echo   正在以管理员身份启动……');
+    L.push('    echo   请在弹出的「用户账户控制」窗口点「是」。');
+    L.push('    echo.');
+    L.push('    powershell -NoProfile -ExecutionPolicy Bypass -Command "Start-Process -FilePath \'%~f0\' -Verb RunAs"');
+    L.push('    if errorlevel 1 (');
+    L.push('        echo.');
+    L.push('        echo   自动提权没有成功。请关掉本窗口，');
+    L.push('        echo   改为右键这个 bat 文件，选「以管理员身份运行」。');
+    L.push('        echo.');
+    L.push('        pause');
+    L.push('    )');
+    L.push('    exit /b');
+    L.push(')');
+    L.push('');
+    L.push('echo ============================================================');
+    L.push('echo   ' + title);
+    L.push('echo   服务器：' + addr);
+    L.push('echo   已获得管理员权限，开始执行');
+    L.push('echo ============================================================');
+    if (hasKeyLine) {
+      L.push('echo.');
+      L.push('echo   提示：脚本里装密钥那行默认是注释掉的，不装密钥也能激活；');
+      L.push('echo         需要装的话，用记事本打开本文件，去掉那一行的 rem。');
+    }
+    L.push('echo.');
+    for (var i = 0; i < body.length; i++) L.push(body[i]);
+    L.push('');
+    L.push('echo.');
+    L.push('echo ------------------------------------------------------------');
+    L.push('echo   执行完毕。如果失败，请把上面的内容截图给管理员。');
+    L.push('echo ------------------------------------------------------------');
+    L.push('echo.');
+    L.push('echo 按任意键关闭窗口……');
+    L.push('pause >nul');
+    L.push('');
+    return L.join('\r\n');
+  }
+
+  /* 下载文件名：KMS激活-<版本短名>-<产品短名>.bat
+     例：KMS激活-Windows-专业版.bat、KMS激活-Office2021-ProPlus.bat */
+  function fileName(p) {
+    var v = state.version;
+    var shortName = v.file || v.name;
+    var n = String(p.name)
+      .replace(/^(Microsoft\s+)?(Office|Server|Windows)\s+/i, '')
+      .replace(/[\\/:*?"<>|]/g, '-')
+      .replace(/\s+/g, '');
+    var y = (String(shortName).match(/\d{4}$/) || [])[0];   /* 版本短名末尾的年份 */
+    if (y && n.slice(-4) === y) n = n.slice(0, -4);         /* 产品名里重复的年份去掉 */
+    return shortName + '-' + n;
+  }
+
+  var btnBat = document.getElementById('btnBat');
+  btnBat.addEventListener('click', function () {
+    var p = state.product;
+    if (!p) return;
+    var text = buildBat(p);
+    var blob = new Blob([toGbk(text)], { type: 'application/octet-stream' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'KMS激活-' + fileName(p) + '.bat';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 3000);
+    btnBat.textContent = '已下载';
+    setTimeout(function () { btnBat.textContent = '下载 .bat 文件'; }, 1800);
+  });
+
+  /* ---------- 完整版：把所有产品做成一个菜单 bat ----------
+     和单产品下载共用同一套命令模板，改了 config.js 这里自动跟着变。
+     Windows 按 2 格算宽度，保证菜单两列对齐。 */
+  function dispWidth(s) {
+    var w = 0;
+    for (var i = 0; i < s.length; i++) w += s.charCodeAt(i) >= 0x2e80 ? 2 : 1;
+    return w;
+  }
+  function padTo(s, w) {
+    var out = s, d = w - dispWidth(s);
+    while (d-- > 0) out += ' ';
+    return out;
+  }
+  function cmdsOfProduct(p) {
+    return String(p.tpl || '').split('\n').filter(function (l) {
+      var t = l.trim();
+      return t && t.indexOf('::') !== 0;
+    }).map(function (l) {
+      return l.split('{h}').join('%HOST%').split(KEY_PH).join(keyOf(p) || KEY_PH);
+    });
+  }
+
+  function buildMenuBat() {
+    var L = [];
+    var menus = {};
+    var jobs = [];
+
+    CATALOG.forEach(function (t) {
+      var kind = t.kind || 'win';
+      var rows = [];
+      var no = 0;
+      (t.versions || []).forEach(function (v) {
+        rows.push('  -- ' + v.name + ' --');
+        var cells = (v.products || []).map(function (p) {
+          no++;
+          jobs.push({ kind: kind, no: no, title: v.name + ' ' + p.name, cmds: cmdsOfProduct(p) });
+          return '   [' + (no < 10 ? ' ' : '') + no + '] ' + p.name;
+        });
+        for (var i = 0; i < cells.length; i += 2) {
+          rows.push(padTo(cells[i], 38) + (cells[i + 1] || ''));
+        }
+        rows.push('');
+      });
+      if (rows[rows.length - 1] === '') rows.pop();
+      menus[kind] = { name: t.name, rows: rows };
+    });
+
+    var kinds = Object.keys(menus);
+    var tagOf = { win: 'WIN', office: 'OFFICE' };
+    var preOf = { win: 'W', office: 'O' };
+
+    L.push('@echo off');
+    L.push('chcp 936 >nul');
+    L.push('title 内网 KMS 激活工具');
+    L.push('setlocal');
+    L.push('set "HOST=' + (HOST || HOST_FALLBACK) + '"');
+    L.push('');
+    L.push('rem ===== 不是管理员就拉起一个提权后的自己 =====');
+    L.push('net session >nul 2>&1');
+    L.push('if %errorlevel% neq 0 (');
+    L.push('    echo.');
+    L.push('    echo   正在以管理员身份启动……');
+    L.push('    echo   请在弹出的「用户账户控制」窗口点「是」。');
+    L.push('    echo.');
+    L.push("    powershell -NoProfile -ExecutionPolicy Bypass -Command \"Start-Process -FilePath '%~f0' -Verb RunAs\"");
+    L.push('    if errorlevel 1 (');
+    L.push('        echo.');
+    L.push('        echo   自动提权没有成功。请关掉本窗口，');
+    L.push('        echo   改为右键这个文件，选「以管理员身份运行」。');
+    L.push('        echo.');
+    L.push('        pause');
+    L.push('    )');
+    L.push('    exit /b');
+    L.push(')');
+
+    /* 主菜单 */
+    L.push('');
+    L.push(':MENU');
+    L.push('cls');
+    L.push('echo ============================================================');
+    L.push('echo                       内网 KMS 激活');
+    L.push('echo    服务器：%HOST%');
+    L.push('echo ============================================================');
+    L.push('echo.');
+    kinds.forEach(function (k, i) {
+      L.push('echo      [' + (i + 1) + '] ' + menus[k].name);
+    });
+    L.push('echo.');
+    L.push('echo      [0] 退出');
+    L.push('echo.');
+    L.push('echo ============================================================');
+    L.push('set "C="');
+    L.push('set /p "C=   输入编号后回车： "');
+    kinds.forEach(function (k, i) {
+      L.push('if "%C%"=="' + (i + 1) + '" goto ' + tagOf[k]);
+    });
+    L.push('if "%C%"=="0" exit /b');
+    L.push('goto MENU');
+
+    /* 子菜单 */
+    kinds.forEach(function (k) {
+      L.push('');
+      L.push(':' + tagOf[k]);
+      L.push('cls');
+      L.push('echo ============================================================');
+      L.push('echo    ' + menus[k].name + ' 激活');
+      L.push('echo    服务器：%HOST%');
+      L.push('echo ============================================================');
+      L.push('echo.');
+      menus[k].rows.forEach(function (r) { L.push(r === '' ? 'echo.' : 'echo ' + r); });
+      L.push('echo.');
+      L.push('echo      [0] 返回主菜单');
+      L.push('echo ============================================================');
+      L.push('set "C="');
+      L.push('set /p "C=   输入编号后回车： "');
+      jobs.filter(function (j) { return j.kind === k; }).forEach(function (j) {
+        L.push('if "%C%"=="' + j.no + '" goto ' + preOf[k] + j.no);
+      });
+      L.push('if "%C%"=="0" goto MENU');
+      L.push('goto ' + tagOf[k]);
+    });
+
+    /* 每个产品一个执行块 */
+    jobs.forEach(function (j) {
+      L.push('');
+      L.push(':' + preOf[j.kind] + j.no);
+      L.push('cls');
+      L.push('echo    正在处理：' + j.title);
+      L.push('echo.');
+      j.cmds.forEach(function (c) { L.push(c); });
+      L.push('echo.');
+      L.push('echo ------------------------------------------------------------');
+      L.push('echo    执行完毕。如果失败，请把上面的内容截图给管理员。');
+      L.push('echo ------------------------------------------------------------');
+      L.push('echo.');
+      L.push('pause');
+      L.push('goto ' + tagOf[j.kind]);
+    });
+
+    L.push('');
+    L.push('exit /b');
+    return L.join('\r\n') + '\r\n';
+  }
+
+  var btnAll = document.getElementById('btnAll');
+  if (btnAll) {
+    btnAll.addEventListener('click', function () {
+      if (!CATALOG.length) { alert('没读到产品目录，请检查 config.js。'); return; }
+      var blob = new Blob([toGbk(buildMenuBat())], { type: 'application/octet-stream' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'KMS激活工具.bat';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 3000);
+      var old = btnAll.textContent;
+      btnAll.textContent = '已下载，双击运行即可';
+      setTimeout(function () { btnAll.textContent = old; }, 2200);
+    });
+  }
+
+  /* ---------- 重置与回退 ---------- */
+  function reset() {
+    state.type = state.version = state.product = null;
+    SEL[1].value = ''; SEL[1].classList.add('placeholder');
+    hideField(2); hideField(3); hideResult(); setStep(0);
+  }
+  btnReset.addEventListener('click', reset);
+
+  stepsEl.addEventListener('click', function (e) {
+    var s = e.target.closest('.step.completed');
+    if (!s) return;
+    var n = parseInt(s.getAttribute('data-step'), 10);
+    if (n === 1) { reset(); }
+    else if (n === 2 && state.type) {
+      hideField(3); hideResult(); state.version = null; state.product = null;
+      SEL[2].value = ''; SEL[2].classList.add('placeholder'); setStep(2);
+    } else if (n === 3 && state.version) {
+      hideResult(); state.product = null;
+      SEL[3].value = ''; SEL[3].classList.add('placeholder'); setStep(3);
+    }
+  });
+
+  /* ---------- 公告条 ---------- */
+  document.getElementById('bannerClose').addEventListener('click', function () {
+    document.getElementById('banner').style.display = 'none';
+  });
+
+  setStep(0);
+})();
+</script>
+</body>
+</html>

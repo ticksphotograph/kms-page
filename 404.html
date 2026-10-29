@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#080a0e">
+<title>页面不存在 · 内网激活</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<style>
+  *{box-sizing:border-box}
+  body{
+    margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px;
+    background-color:#080a0e;
+    background-image:radial-gradient(80% 50% at 50% -18%, rgba(125,211,252,.07), transparent 62%);
+    background-repeat:no-repeat;
+    color:#d7e0ec; font:14px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .box{
+    width:520px; max-width:100%; overflow:hidden; border-radius:10px;
+    background:#0d1117; border:1px solid rgba(255,255,255,.16);
+    box-shadow:0 22px 44px -30px #000;
+  }
+  .bar{display:flex; align-items:center; gap:6px; padding:8px 12px; background:#0b0f15; border-bottom:1px solid rgba(255,255,255,.085)}
+  .bar i{width:9px; height:9px; border-radius:50%; background:#232d3a; border:1px solid rgba(255,255,255,.05)}
+  .bar span{margin-left:8px; font-family:ui-monospace,Consolas,Menlo,monospace; font-size:11.5px; color:#5e6b7c}
+  .body{padding:28px 26px 30px; text-align:center}
+  .code{
+    font-family:ui-monospace,Consolas,Menlo,monospace; font-size:40px; font-weight:700;
+    letter-spacing:2px; color:#7dd3fc;
+  }
+  h1{margin:14px 0 8px; font-size:17px; font-weight:700; color:#e8eef7}
+  p{margin:0 0 22px; color:#8e9bad; font-size:12.5px}
+  a{
+    display:inline-block; padding:8px 18px; border-radius:6px; text-decoration:none;
+    font-size:12.5px; font-weight:600; color:#fff; background:#238636; border:1px solid #2ea043;
+  }
+  a:hover{background:#2ea043}
+</style>
+</head>
+<body>
+  <div class="box">
+    <div class="bar"><i></i><i></i><i></i><span>404 — not found</span></div>
+    <div class="body">
+      <div class="code">404</div>
+      <h1>这个页面不存在</h1>
+      <p>地址可能输错了，或者文件没有被一起部署。</p>
+      <a href="./index.html">回到激活指引首页</a>
+    </div>
+  </div>
+</body>
+</html>
