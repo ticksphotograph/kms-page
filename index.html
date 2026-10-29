@@ -293,8 +293,8 @@ footer{
 .f-bottom b{color:var(--ink-2); font-weight:700}
 
 /* ================= 右侧：一台小电视（CRT 显示器） ================= */
-/* 机壳：深灰蓝金属壳 */
-.result{
+/* 机壳：深灰蓝金属壳（结果态与空状态共用同一台机器） */
+.result,.ph{
   position:relative; margin-bottom:20px;
   background:linear-gradient(160deg,#1c2a3d 0%,#16222f 52%,#101a26 100%);
   border:1px solid rgba(120,160,210,.22);
@@ -302,8 +302,8 @@ footer{
   padding:13px;
   box-shadow:0 30px 60px -34px #000, inset 0 1px 0 rgba(255,255,255,.09),
              inset 0 -2px 4px rgba(0,0,0,.5);
-  animation:card-in .42s cubic-bezier(.2,.9,.3,1) both;
 }
+.result{animation:card-in .42s cubic-bezier(.2,.9,.3,1) both}
 .result[hidden]{display:none}
 @keyframes card-in{from{opacity:0; transform:translateY(12px) scale(.99)} to{opacity:1; transform:none}}
 
@@ -396,10 +396,9 @@ pre{background:#03070c; border:1px solid rgba(120,180,230,.16); color:#bfe0ff}
 .tv-brand-mini{font-size:9px; letter-spacing:.24em; color:#5d7290; flex:none}
 
 /* ================= 空状态：屏幕里一段正在输入的代码 ================= */
-.ph{position:relative; margin-bottom:20px}
 .ph-screen{
-  position:relative; display:flex; flex-direction:column; justify-content:center; gap:14px;
-  min-height:280px; padding:26px 22px; border-radius:18px; overflow:hidden;
+  position:relative; display:flex; flex-direction:column; justify-content:flex-start; gap:14px;
+  min-height:280px; padding:22px 22px 20px; border-radius:18px; overflow:hidden;
   background:radial-gradient(125% 95% at 50% 0%, #0f1e2e 0%, #08121c 44%, #040a11 100%);
   border:1px solid rgba(120,180,230,.14);
   box-shadow:inset 0 0 70px rgba(0,0,0,.85), inset 0 0 30px rgba(0,20,40,.55);
@@ -457,10 +456,13 @@ pre{background:#03070c; border:1px solid rgba(120,180,230,.16); color:#bfe0ff}
 @keyframes caret-blink{0%,50%{opacity:1}50.01%,100%{opacity:0}}
 
 .ph-txt{
-  display:block; margin:0; font-size:11.5px; color:#6f8ba8; line-height:1.8;
+  display:block; margin:auto 0 0; font-size:11.5px; color:#6f8ba8; line-height:1.8;
   border-top:1px dashed rgba(120,160,210,.18); padding-top:12px;
 }
 .ph-txt b{color:#9db2cb; font-weight:700}
+/* 空状态机壳：顶栏不被压扁，电源灯是「待机」的琥珀色 */
+.ph .r-bar{flex:none}
+.ph .tv-led{background:#f0b46a; box-shadow:0 0 8px 1px rgba(240,180,106,.75)}
 
 /* ---------- 响应式 / 动效降级 ---------- */
 @media (prefers-reduced-motion: reduce){
@@ -535,7 +537,7 @@ pre{background:#03070c; border:1px solid rgba(120,180,230,.16); color:#bfe0ff}
   .r-body::-webkit-scrollbar{width:8px}
   .r-body::-webkit-scrollbar-thumb{background:rgba(56,189,248,.28); border-radius:8px}
   .ph{display:flex; flex-direction:column; flex:1 1 auto; max-height:calc(100vh - 100px)}
-  .ph .ph-screen{flex:1 1 auto; justify-content:center}
+  .ph .ph-screen{flex:1 1 auto; justify-content:flex-start}
   .ph .tv-foot{flex:none}
   /* 出结果后空状态让位 */
   .result:not([hidden]) + .ph{display:none}
@@ -644,6 +646,11 @@ pre{background:#03070c; border:1px solid rgba(120,180,230,.16); color:#bfe0ff}
   </section>
 
   <div class="ph">
+    <div class="r-bar">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="r-file">kms-tv · 待机</span>
+      <span class="tv-led" aria-hidden="true"></span>
+    </div>
     <div class="ph-screen">
       <div class="tty" aria-hidden="true">
         <span class="ln ln1"><span class="p">PS C:\&gt;</span> <span class="c">slmgr /skms kms.lan</span></span>
