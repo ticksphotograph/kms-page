@@ -354,6 +354,60 @@ footer{
   footer{margin-top:34px}
   .f-bottom{justify-content:center; text-align:center}
 }
+
+/* ---------- 桌面双栏布局：左边选，右边看 ---------- */
+@media (min-width:980px){
+  .nav-inner,.f-inner{max-width:1080px}
+  main{padding:0 0 58px}
+  .banner{width:1080px; max-width:calc(100% - 48px); margin:26px auto 0}
+  .cols{
+    display:grid; grid-template-columns:minmax(0,1.07fr) minmax(0,.93fr);
+    column-gap:46px; width:1080px; max-width:calc(100% - 48px);
+    margin:0 auto; align-items:stretch;
+  }
+  .hero{text-align:left; padding:32px 0 0}
+  h1{font-size:clamp(30px,3.3vw,40px)}
+  h1::after{margin:14px 0 0; width:104px}
+  .hero-sub{margin:16px 0 0; max-width:520px}
+  .status{margin-top:16px}
+  .steps-indicator{justify-content:flex-start; padding:0; margin:28px 0 22px}
+  .picker{width:auto; max-width:none; margin:0}
+  .allinone{width:auto; max-width:none; margin:14px 0 0; text-align:left}
+  /* 右侧：标题 + 吸顶卡片；内容超高时卡片内部滚动，标题栏始终可见 */
+  .col-side{padding-top:32px}
+  .col-tag{
+    display:flex; align-items:center; gap:9px; margin:0 0 12px;
+    font-size:10.5px; letter-spacing:.18em; text-transform:uppercase; color:var(--ink-3);
+  }
+  .col-tag::before{content:''; width:22px; height:2px; border-radius:2px; background:var(--grad); opacity:.85; flex:none}
+  .result{
+    margin:0; width:auto; max-width:none; position:sticky; top:86px;
+    display:flex; flex-direction:column; max-height:calc(100vh - 112px);
+  }
+  .r-body{overflow:auto; overscroll-behavior:contain; scrollbar-width:thin}
+  .r-bar{flex:none}
+  .r-body::-webkit-scrollbar{width:8px}
+  .r-body::-webkit-scrollbar-thumb{background:rgba(163,138,199,.35); border-radius:8px}
+  /* 空状态 */
+  .ph{
+    position:sticky; top:86px; margin:0; padding:36px 26px;
+    display:flex; flex-direction:column; align-items:center; gap:9px; text-align:center;
+    border:2px dashed rgba(163,138,199,.40); border-radius:20px;
+    background:rgba(255,255,255,.55);
+  }
+  .ph-ico{font-size:26px; line-height:1; color:#d9bcf5}
+  .ph b{font-size:14px; color:var(--ink-2); font-weight:700}
+  .ph-txt{font-size:12px; color:var(--ink-3); line-height:1.85; max-width:270px}
+  .ph-chips{display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin-top:5px}
+  .ph-chips i{
+    font-style:normal; font-size:10.5px; padding:3px 10px; border-radius:999px;
+    border:1px solid var(--line); background:rgba(255,255,255,.78); color:var(--ink-3);
+  }
+  .result:not([hidden]) + .ph{display:none}
+}
+@media (max-width:979px){
+  .col-tag,.ph{display:none}
+}
 </style>
 </head>
 <body>
@@ -373,6 +427,9 @@ footer{
     <span class="txt" id="bannerTxt">仅用于内部已获微软批量授权的设备；页内命令用于连接组织自建的 KMS 主机。</span>
     <button class="x" id="bannerClose" type="button" aria-label="关闭">×</button>
   </div>
+
+  <div class="cols">
+  <div class="col-main">
 
   <section class="hero" id="wizard">
     <div class="kicker">kms activation</div>
@@ -415,6 +472,11 @@ footer{
     <button class="link-btn" id="btnAll" type="button">不想一个个选？下载完整版 .bat（含全部产品，双击后菜单里挑）</button>
   </div>
 
+  </div><!-- /.col-main -->
+
+  <aside class="col-side">
+  <div class="col-tag">输出预览</div>
+
   <section class="result" id="result" hidden>
     <div class="r-bar">
       <span class="dot"></span><span class="dot"></span><span class="dot"></span>
@@ -438,6 +500,16 @@ footer{
       <div class="note" id="rNote" hidden></div>
     </div>
   </section>
+
+  <div class="ph">
+    <span class="ph-ico">✧</span>
+    <b>还没有选中产品</b>
+    <span class="ph-txt">左边按三步选完，命令、复制按钮和 .bat 下载就会出现在这张卡片里。</span>
+    <span class="ph-chips"><i>Windows · slmgr</i><i>Office · ospp</i><i>不确定就下完整版</i></span>
+  </div>
+
+  </aside>
+  </div><!-- /.cols -->
 
 </main>
 
