@@ -3,43 +3,77 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="color-scheme" content="dark">
-<meta name="theme-color" content="#080a0e">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#fdf8fc">
 <title>页面不存在 · 内网激活</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <style>
   *{box-sizing:border-box}
   body{
     margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px;
-    background-color:#080a0e;
-    background-image:radial-gradient(80% 50% at 50% -18%, rgba(125,211,252,.07), transparent 62%);
-    background-repeat:no-repeat;
-    color:#d7e0ec; font:14px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
-    -webkit-font-smoothing:antialiased;
+    background-color:#fdf8fc;
+    background-image:
+      radial-gradient(58% 42% at 10% -8%, rgba(255,143,187,.30), transparent 70%),
+      radial-gradient(52% 42% at 92% -4%, rgba(169,139,255,.28), transparent 72%),
+      radial-gradient(70% 46% at 50% 106%, rgba(99,198,239,.20), transparent 74%);
+    background-repeat:no-repeat; background-attachment:fixed;
+    color:#463a58;
+    font:14px/1.75 -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei UI","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased; position:relative; overflow:hidden;
   }
+  /* 落樱点缀：纯 CSS 花瓣 */
+  .petals{position:fixed; inset:0; overflow:hidden; pointer-events:none}
+  .petals i{
+    position:absolute; top:-10vh; width:11px; height:11px;
+    background:linear-gradient(140deg,#ffd0e2,#ff9cc3); border-radius:100% 0 100% 0; opacity:.6;
+    animation:fall var(--d,18s) linear infinite, sway var(--s,3.6s) ease-in-out infinite alternate;
+    animation-delay:var(--dl,0s),0s;
+  }
+  .petals i:nth-child(2){left:22%; --d:21s; --s:4.2s; --dl:-6s; background:linear-gradient(140deg,#e6dbff,#bda6ff)}
+  .petals i:nth-child(3){left:44%; --d:17s; --s:3.4s; --dl:-12s}
+  .petals i:nth-child(4){left:66%; --d:23s; --s:4.6s; --dl:-3s; background:linear-gradient(140deg,#d6f2ff,#9ddcff)}
+  .petals i:nth-child(5){left:84%; --d:19s; --s:3.8s; --dl:-15s}
+  .petals i:nth-child(6){left:8%;  --d:24s; --s:4.8s; --dl:-9s}
+  @keyframes fall{0%{transform:translate3d(0,-10vh,0) rotate(0)}100%{transform:translate3d(0,110vh,0) rotate(400deg)}}
+  @keyframes sway{0%{margin-left:-18px}100%{margin-left:18px}}
+
   .box{
-    width:520px; max-width:100%; overflow:hidden; border-radius:10px;
-    background:#0d1117; border:1px solid rgba(255,255,255,.16);
-    box-shadow:0 22px 44px -30px #000;
+    position:relative; z-index:1;
+    width:520px; max-width:100%; overflow:hidden; border-radius:20px;
+    background:rgba(255,255,255,.94); border:1px solid rgba(255,255,255,.9);
+    box-shadow:0 20px 44px -26px rgba(124,92,175,.55);
   }
-  .bar{display:flex; align-items:center; gap:6px; padding:8px 12px; background:#0b0f15; border-bottom:1px solid rgba(255,255,255,.085)}
-  .bar i{width:9px; height:9px; border-radius:50%; background:#232d3a; border:1px solid rgba(255,255,255,.05)}
-  .bar span{margin-left:8px; font-family:ui-monospace,Consolas,Menlo,monospace; font-size:11.5px; color:#5e6b7c}
-  .body{padding:28px 26px 30px; text-align:center}
+  .bar{
+    display:flex; align-items:center; gap:7px; padding:11px 15px;
+    background:linear-gradient(180deg,#fff,#fdf5fb); border-bottom:1px solid rgba(163,138,199,.2);
+  }
+  .bar i{width:10px; height:10px; border-radius:50%}
+  .bar i:nth-child(1){background:#ff9ec1; box-shadow:0 0 0 3px rgba(255,158,193,.16)}
+  .bar i:nth-child(2){background:#c6a8ff; box-shadow:0 0 0 3px rgba(198,168,255,.16)}
+  .bar i:nth-child(3){background:#8fd8f5; box-shadow:0 0 0 3px rgba(143,216,245,.16)}
+  .bar span{margin-left:9px; font-size:11.5px; color:#a99bc1; letter-spacing:.05em}
+  .body{padding:32px 28px 34px; text-align:center}
   .code{
-    font-family:ui-monospace,Consolas,Menlo,monospace; font-size:40px; font-weight:700;
-    letter-spacing:2px; color:#7dd3fc;
+    font-size:52px; font-weight:800; letter-spacing:.06em; line-height:1.15;
+    background:linear-gradient(115deg,#ff9ec4 0%,#c08bff 52%,#6cc9f0 100%);
+    -webkit-background-clip:text; background-clip:text; color:transparent; -webkit-text-fill-color:transparent;
+    filter:drop-shadow(0 8px 16px rgba(255,143,187,.32));
   }
-  h1{margin:14px 0 8px; font-size:17px; font-weight:700; color:#e8eef7}
-  p{margin:0 0 22px; color:#8e9bad; font-size:12.5px}
+  h1{margin:12px 0 8px; font-size:17px; font-weight:800; color:#463a58; letter-spacing:.03em}
+  p{margin:0 0 24px; color:#7d6f93; font-size:12.5px}
   a{
-    display:inline-block; padding:8px 18px; border-radius:6px; text-decoration:none;
-    font-size:12.5px; font-weight:600; color:#fff; background:#238636; border:1px solid #2ea043;
+    display:inline-block; padding:11px 26px; border-radius:999px; text-decoration:none;
+    font-size:13px; font-weight:700; color:#fff;
+    background:linear-gradient(115deg,#ff9ec4 0%,#c08bff 52%,#6cc9f0 100%);
+    box-shadow:0 12px 22px -12px rgba(232,96,154,.85);
+    transition:transform .18s, box-shadow .18s;
   }
-  a:hover{background:#2ea043}
+  a:hover{transform:translateY(-1px); box-shadow:0 16px 26px -12px rgba(232,96,154,.95)}
+  @media (prefers-reduced-motion: reduce){.petals{display:none} *{transition-duration:.01ms !important; animation:none !important}}
 </style>
 </head>
 <body>
+  <div class="petals" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
   <div class="box">
     <div class="bar"><i></i><i></i><i></i><span>404 — not found</span></div>
     <div class="body">
