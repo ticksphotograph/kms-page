@@ -278,17 +278,9 @@ footer{
   position:relative; z-index:1;
 }
 .f-inner{max-width:960px; margin:0 auto}
-.f-brand{display:flex; align-items:center; justify-content:center; gap:9px; margin-bottom:12px}
-.f-brand .f-mark{
-  width:22px; height:22px; border-radius:8px; flex:none; color:#04121c;
-  background:var(--grad); box-shadow:0 5px 14px -6px rgba(56,189,248,.75);
-  display:grid; place-items:center; font-size:11px; font-weight:800;
-}
-.f-brand .f-name{font-size:12.5px; color:var(--ink-2); letter-spacing:.06em}
 .f-bottom{
   display:flex; align-items:center; justify-content:space-between; gap:12px;
-  border-top:1px dashed var(--line); padding-top:13px; flex-wrap:wrap; text-align:left;
-  letter-spacing:.02em;
+  flex-wrap:wrap; text-align:left; letter-spacing:.02em;
 }
 .f-bottom b{color:var(--ink-2); font-weight:700}
 
@@ -674,7 +666,6 @@ pre{background:#03070c; border:1px solid rgba(120,180,230,.16); color:#bfe0ff}
 
 <footer>
   <div class="f-inner">
-    <div class="f-brand"><span class="f-mark">K</span><span class="f-name">内网激活</span></div>
     <div class="f-bottom">
       <span><b>内网激活</b> · 仅限组织内部使用</span>
       <span>ticksphotograph</span>
@@ -815,7 +806,7 @@ const CATALOG = (CFG && CFG.catalog && CFG.catalog.length) ? CFG.catalog : [];
       });
     });
     if (hasKey) {
-      el.textContent = '仅用于组织内部已获微软批量授权的设备。';
+      el.textContent = '仅用于组织内部已获微软批量授权的设备，本站提供的服务只供研究不能作为任何商业活动,如在商业活动或服务中使用本站服务,带来的后果本站不提供负任何法律责任';
     }
   })();
 
