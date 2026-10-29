@@ -4,83 +4,149 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
-<meta name="theme-color" content="#fdf8fc">
+<meta name="theme-color" content="#f4f8fd">
 <title>页面不存在 · 内网激活</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <style>
   *{box-sizing:border-box}
   body{
     margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px;
-    background-color:#fdf8fc;
+    background-color:#f4f8fd;
     background-image:
-      radial-gradient(58% 42% at 10% -8%, rgba(255,143,187,.30), transparent 70%),
-      radial-gradient(52% 42% at 92% -4%, rgba(169,139,255,.28), transparent 72%),
-      radial-gradient(70% 46% at 50% 106%, rgba(99,198,239,.20), transparent 74%);
+      radial-gradient(58% 42% at 10% -8%, rgba(37,99,235,.15), transparent 70%),
+      radial-gradient(52% 42% at 92% -4%, rgba(42,198,217,.17), transparent 72%),
+      radial-gradient(70% 46% at 50% 106%, rgba(91,124,245,.12), transparent 74%);
     background-repeat:no-repeat; background-attachment:fixed;
-    color:#463a58;
+    color:#1e2f45;
     font:14px/1.75 -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei UI","Microsoft YaHei",sans-serif;
     -webkit-font-smoothing:antialiased; position:relative; overflow:hidden;
   }
-  /* 落樱点缀：纯 CSS 花瓣 */
-  .petals{position:fixed; inset:0; overflow:hidden; pointer-events:none}
-  .petals i{
-    position:absolute; top:-10vh; width:11px; height:11px;
-    background:linear-gradient(140deg,#ffd0e2,#ff9cc3); border-radius:100% 0 100% 0; opacity:.6;
+  /* 星屑点缀：纯 CSS 光点 */
+  .motes{position:fixed; inset:0; overflow:hidden; pointer-events:none}
+  .motes i{
+    position:absolute; top:-10vh; width:6px; height:6px; border-radius:50%;
+    background:#8ed4f5; opacity:.55; box-shadow:0 0 9px 2px rgba(94,190,240,.55);
     animation:fall var(--d,18s) linear infinite, sway var(--s,3.6s) ease-in-out infinite alternate;
     animation-delay:var(--dl,0s),0s;
   }
-  .petals i:nth-child(2){left:22%; --d:21s; --s:4.2s; --dl:-6s; background:linear-gradient(140deg,#e6dbff,#bda6ff)}
-  .petals i:nth-child(3){left:44%; --d:17s; --s:3.4s; --dl:-12s}
-  .petals i:nth-child(4){left:66%; --d:23s; --s:4.6s; --dl:-3s; background:linear-gradient(140deg,#d6f2ff,#9ddcff)}
-  .petals i:nth-child(5){left:84%; --d:19s; --s:3.8s; --dl:-15s}
-  .petals i:nth-child(6){left:8%;  --d:24s; --s:4.8s; --dl:-9s}
-  @keyframes fall{0%{transform:translate3d(0,-10vh,0) rotate(0)}100%{transform:translate3d(0,110vh,0) rotate(400deg)}}
+  .motes i:nth-child(2){left:22%; --d:21s; --s:4.2s; --dl:-6s; background:#93b6f5; box-shadow:0 0 9px 2px rgba(99,140,240,.5)}
+  .motes i:nth-child(3){left:44%; --d:17s; --s:3.4s; --dl:-12s}
+  .motes i:nth-child(4){left:66%; --d:23s; --s:4.6s; --dl:-3s; background:#93eedd; box-shadow:0 0 10px 2px rgba(80,220,200,.45)}
+  .motes i:nth-child(5){left:84%; --d:19s; --s:3.8s; --dl:-15s}
+  .motes i:nth-child(6){left:8%;  --d:24s; --s:4.8s; --dl:-9s; width:3px; height:3px}
+  @keyframes fall{0%{transform:translate3d(0,-10vh,0)}100%{transform:translate3d(0,110vh,0)}}
   @keyframes sway{0%{margin-left:-18px}100%{margin-left:18px}}
 
+  /* 一台找不到频道的小电视 */
   .box{
     position:relative; z-index:1;
-    width:520px; max-width:100%; overflow:hidden; border-radius:20px;
-    background:rgba(255,255,255,.94); border:1px solid rgba(255,255,255,.9);
-    box-shadow:0 20px 44px -26px rgba(124,92,175,.55);
+    width:520px; max-width:100%; padding:13px; border-radius:26px;
+    background:linear-gradient(160deg,#ffffff 0%,#f2f7fc 52%,#e4edf7 100%);
+    border:1px solid rgba(120,152,196,.30);
+    box-shadow:0 26px 50px -32px rgba(28,78,136,.60), inset 0 1px 0 #fff,
+               inset 0 -2px 4px rgba(120,152,196,.14);
+  }
+  /* 底座 */
+  .box::after{
+    content:''; position:absolute; left:13%; right:13%; bottom:-17px; height:17px; z-index:0;
+    background:linear-gradient(180deg,#e7eef7 0%,#cfdcea 100%);
+    border-radius:0 0 10px 10px;
+    clip-path:polygon(7% 0,93% 0,100% 100%,0 100%);
+    box-shadow:0 16px 24px -18px rgba(28,78,136,.65);
+    pointer-events:none;
   }
   .bar{
-    display:flex; align-items:center; gap:7px; padding:11px 15px;
-    background:linear-gradient(180deg,#fff,#fdf5fb); border-bottom:1px solid rgba(163,138,199,.2);
+    display:flex; align-items:center; gap:7px; padding:0 5px 11px;
   }
-  .bar i{width:10px; height:10px; border-radius:50%}
-  .bar i:nth-child(1){background:#ff9ec1; box-shadow:0 0 0 3px rgba(255,158,193,.16)}
-  .bar i:nth-child(2){background:#c6a8ff; box-shadow:0 0 0 3px rgba(198,168,255,.16)}
-  .bar i:nth-child(3){background:#8fd8f5; box-shadow:0 0 0 3px rgba(143,216,245,.16)}
-  .bar span{margin-left:9px; font-size:11.5px; color:#a99bc1; letter-spacing:.05em}
-  .body{padding:32px 28px 34px; text-align:center}
+  .bar i{width:9px; height:9px; border-radius:50%; box-shadow:inset 0 -1px 1px rgba(28,78,136,.28)}
+  .bar i:nth-child(1){background:#4f9bf0}
+  .bar i:nth-child(2){background:#4fc4dc}
+  .bar i:nth-child(3){background:#5ecfa4}
+  .bar span{margin-left:4px; font-size:10px; letter-spacing:.22em; text-transform:uppercase; color:#8197b0}
+  .led{margin-left:auto; width:7px; height:7px; border-radius:50%;
+       background:#5fd6ab; box-shadow:0 0 8px 1px rgba(95,214,171,.85);
+       animation:blink 3.6s ease-in-out infinite}
+  @keyframes blink{0%,93%,100%{opacity:1}96%{opacity:.3}}
+
+  /* 屏幕 */
+  .screen{
+    position:relative; overflow:hidden; padding:44px 26px 34px; border-radius:18px; text-align:center;
+    background:radial-gradient(125% 95% at 50% 0%, #24405c 0%, #16283c 44%, #0d1826 100%);
+    border:1px solid rgba(255,255,255,.10);
+    box-shadow:inset 0 0 64px rgba(0,0,0,.55);
+  }
+  .screen::before{
+    content:''; position:absolute; inset:0; pointer-events:none;
+    background:repeating-linear-gradient(180deg, rgba(255,255,255,.035) 0 1px, transparent 1px 3px);
+  }
+  .screen::after{
+    content:''; position:absolute; inset:0; pointer-events:none;
+    background:linear-gradient(114deg, rgba(255,255,255,.10) 0%, rgba(255,255,255,0) 34%,
+               rgba(255,255,255,0) 66%, rgba(255,255,255,.045) 100%);
+  }
+  .screen > *{position:relative; z-index:1}
   .code{
-    font-size:52px; font-weight:800; letter-spacing:.06em; line-height:1.15;
-    background:linear-gradient(115deg,#ff9ec4 0%,#c08bff 52%,#6cc9f0 100%);
+    font-size:54px; font-weight:800; letter-spacing:.08em; line-height:1.1;
+    background:linear-gradient(115deg,#60a5fa 0%,#38bdf8 50%,#22d3ee 100%);
     -webkit-background-clip:text; background-clip:text; color:transparent; -webkit-text-fill-color:transparent;
-    filter:drop-shadow(0 8px 16px rgba(255,143,187,.32));
+    filter:drop-shadow(0 8px 18px rgba(56,160,240,.45));
   }
-  h1{margin:12px 0 8px; font-size:17px; font-weight:800; color:#463a58; letter-spacing:.03em}
-  p{margin:0 0 24px; color:#7d6f93; font-size:12.5px}
+  .nosig{
+    display:block; margin-top:6px;
+    font:10px/1 ui-monospace,SFMono-Regular,Consolas,monospace;
+    letter-spacing:.34em; text-transform:uppercase; color:#62c8f0;
+    animation:nosig 2.8s steps(1) infinite;
+  }
+  @keyframes nosig{0%,72%{opacity:.9}76%,100%{opacity:.16}}
+  h1{margin:14px 0 8px; font-size:17px; font-weight:800; color:#fff; letter-spacing:.03em}
+  p{margin:0 0 24px; color:#93aec9; font-size:12.5px}
   a{
     display:inline-block; padding:11px 26px; border-radius:999px; text-decoration:none;
     font-size:13px; font-weight:700; color:#fff;
-    background:linear-gradient(115deg,#ff9ec4 0%,#c08bff 52%,#6cc9f0 100%);
-    box-shadow:0 12px 22px -12px rgba(232,96,154,.85);
+    background:linear-gradient(115deg,#2563eb 0%,#0ea5e9 50%,#22c3d6 100%);
+    box-shadow:0 12px 22px -12px rgba(26,110,168,.8);
     transition:transform .18s, box-shadow .18s;
   }
-  a:hover{transform:translateY(-1px); box-shadow:0 16px 26px -12px rgba(232,96,154,.95)}
-  @media (prefers-reduced-motion: reduce){.petals{display:none} *{transition-duration:.01ms !important; animation:none !important}}
+  a:hover{transform:translateY(-1px); box-shadow:0 16px 26px -12px rgba(26,110,168,.95)}
+
+  /* 机身底部：旋钮 + 喇叭网 */
+  .foot{display:flex; align-items:center; gap:10px; padding:12px 6px 3px}
+  .knob{
+    width:16px; height:16px; border-radius:50%; flex:none;
+    background:radial-gradient(circle at 34% 30%, #fff 0%, #eef3f9 52%, #cbd8e7 100%);
+    border:1px solid rgba(120,152,196,.5);
+    box-shadow:0 1px 2px rgba(28,78,136,.28), inset 0 -1px 2px rgba(120,152,196,.3);
+  }
+  .grill{
+    flex:1; height:10px; border-radius:6px;
+    background-image:radial-gradient(circle, rgba(120,152,196,.45) 1px, transparent 1.2px);
+    background-size:7px 7px; background-position:0 50%; opacity:.8;
+  }
+  .brand{font-size:9px; letter-spacing:.24em; color:#8ba0b8; flex:none}
+  @media (max-width:520px){
+    .box{padding:10px; border-radius:22px}
+    .screen{padding:38px 18px 28px; border-radius:15px}
+    .code{font-size:44px}
+  }
+  @media (prefers-reduced-motion: reduce){.motes{display:none} *{transition-duration:.01ms !important; animation:none !important}}
 </style>
 </head>
 <body>
-  <div class="petals" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="motes" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+
   <div class="box">
-    <div class="bar"><i></i><i></i><i></i><span>404 — not found</span></div>
-    <div class="body">
+    <div class="bar"><i></i><i></i><i></i><span>404 — not found</span><span class="led" aria-hidden="true"></span></div>
+    <div class="screen">
       <div class="code">404</div>
+      <span class="nosig">no signal</span>
       <h1>这个页面不存在</h1>
       <p>地址可能输错了，或者文件没有被一起部署。</p>
       <a href="./index.html">回到激活指引首页</a>
+    </div>
+    <div class="foot" aria-hidden="true">
+      <span class="knob"></span><span class="knob"></span>
+      <span class="grill"></span>
+      <span class="brand">KMS</span>
     </div>
   </div>
 </body>

@@ -5,32 +5,32 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
-<meta name="theme-color" content="#fdf8fc">
+<meta name="theme-color" content="#f4f8fd">
 <meta name="description" content="内网 KMS 激活指引 · 纯静态页面，选好产品即复制命令或下载 .bat">
 <title>内网 KMS 激活</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <style>
 :root{
-  --bg:#fdf8fc;
-  --panel:rgba(255,255,255,.84);
-  --panel-2:rgba(255,255,255,.72);
-  --code-bg:#2b2439;
-  --ink:#463a58;
-  --ink-2:#7d6f93;
-  --ink-3:#a99bc1;
-  --line:rgba(163,138,199,.20);
-  --line-2:rgba(163,138,199,.34);
-  --sakura:#ff8fbb;
-  --sakura-deep:#e8609a;
-  --lav:#a98bff;
-  --sky:#63c6ef;
-  --mint:#43c295;
-  --warn:#e08a3c;
+  --bg:#f4f8fd;
+  --panel:rgba(255,255,255,.86);
+  --panel-2:rgba(255,255,255,.74);
+  --code-bg:#101d2e;
+  --ink:#1e2f45;
+  --ink-2:#5a7391;
+  --ink-3:#8ea4bd;
+  --line:rgba(120,152,196,.20);
+  --line-2:rgba(120,152,196,.34);
+  --accent:#2f9be0;
+  --accent-deep:#1a6ea8;
+  --indigo:#5b7cf5;
+  --cyan:#2ac6d9;
+  --mint:#2fb98a;
+  --warn:#d98232;
   --radius:18px;
   --radius-sm:12px;
-  --grad:linear-gradient(115deg,#ff9ec4 0%,#c08bff 52%,#6cc9f0 100%);
-  --shadow:0 20px 44px -26px rgba(124,92,175,.55);
-  --shadow-soft:0 10px 26px -16px rgba(124,92,175,.55);
+  --grad:linear-gradient(115deg,#2563eb 0%,#0ea5e9 50%,#22c3d6 100%);
+  --shadow:0 20px 44px -26px rgba(28,78,136,.55);
+  --shadow-soft:0 10px 26px -16px rgba(28,78,136,.50);
   --font-body:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans GB','Microsoft YaHei UI','Microsoft YaHei',sans-serif;
   --mono:ui-monospace,SFMono-Regular,'Cascadia Code',Consolas,'Liberation Mono',Menlo,monospace;
 }
@@ -40,55 +40,58 @@ html{scroll-behavior:smooth}
 body{
   margin:0; min-height:100vh; display:flex; flex-direction:column; position:relative;
   background-color:var(--bg);
-  /* 三团樱粉 / 薰衣草 / 天蓝的柔光，纯 CSS，不用任何图片 */
+  /* 三团冷色柔光：靛蓝 / 天青 / 浅蓝，纯 CSS，不用任何图片 */
   background-image:
-    radial-gradient(58% 42% at 10% -8%, rgba(255,143,187,.30), transparent 70%),
-    radial-gradient(52% 42% at 92% -4%, rgba(169,139,255,.28), transparent 72%),
-    radial-gradient(70% 46% at 50% 106%, rgba(99,198,239,.20), transparent 74%);
+    radial-gradient(58% 42% at 10% -8%, rgba(37,99,235,.15), transparent 70%),
+    radial-gradient(52% 42% at 92% -4%, rgba(42,198,217,.17), transparent 72%),
+    radial-gradient(70% 46% at 50% 106%, rgba(91,124,245,.12), transparent 74%);
   background-attachment:fixed;
   background-repeat:no-repeat;
   color:var(--ink); line-height:1.7; font-family:var(--font-body);
   -webkit-font-smoothing:antialiased; overflow-x:hidden;
 }
-::selection{background:rgba(255,143,187,.28); color:#4a2b3c}
+::selection{background:rgba(37,99,235,.18); color:#12314f}
 main{flex:1 0 auto; display:flex; flex-direction:column; justify-content:flex-start; padding:0 0 40px; position:relative; z-index:1}
 
-/* ---------- 落樱（纯 CSS 花瓣，点缀用，不参与交互） ---------- */
-.petals{position:fixed; inset:0; overflow:hidden; pointer-events:none; z-index:0}
-.petals i{
+/* ---------- 星屑（纯 CSS 光点，氛围用，不参与交互） ---------- */
+.motes{position:fixed; inset:0; overflow:hidden; pointer-events:none; z-index:0}
+.motes i{
   position:absolute; top:-10vh; display:block;
-  width:11px; height:11px;
-  background:linear-gradient(140deg,#ffd0e2,#ff9cc3);
-  border-radius:100% 0 100% 0; opacity:.62;
-  animation:petal-fall var(--d,17s) linear infinite, petal-sway var(--s,3.4s) ease-in-out infinite alternate;
+  width:6px; height:6px; border-radius:50%;
+  background:#8ed4f5; opacity:.55;
+  box-shadow:0 0 9px 2px rgba(94,190,240,.55);
+  animation:mote-fall var(--d,17s) linear infinite, mote-sway var(--s,3.4s) ease-in-out infinite alternate;
   animation-delay:var(--dl,0s),0s;
 }
-.petals i:nth-child(2n){background:linear-gradient(140deg,#e6dbff,#bda6ff); opacity:.5}
-.petals i:nth-child(3n){background:linear-gradient(140deg,#d6f2ff,#9ddcff); opacity:.45}
-.petals i:nth-child(1){left:5%;  --d:16s; --s:3.2s; --dl:-1s}
-.petals i:nth-child(2){left:14%; --d:21s; --s:4.1s; --dl:-7s}
-.petals i:nth-child(3){left:23%; --d:18s; --s:3.6s; --dl:-13s}
-.petals i:nth-child(4){left:33%; --d:24s; --s:4.6s; --dl:-4s}
-.petals i:nth-child(5){left:41%; --d:19s; --s:3.9s; --dl:-16s}
-.petals i:nth-child(6){left:49%; --d:22s; --s:4.2s; --dl:-9s}
-.petals i:nth-child(7){left:58%; --d:17s; --s:3.3s; --dl:-2s}
-.petals i:nth-child(8){left:66%; --d:25s; --s:4.8s; --dl:-18s}
-.petals i:nth-child(9){left:74%; --d:20s; --s:3.7s; --dl:-11s}
-.petals i:nth-child(10){left:82%; --d:23s; --s:4.4s; --dl:-6s}
-.petals i:nth-child(11){left:90%; --d:18s; --s:3.5s; --dl:-15s}
-.petals i:nth-child(12){left:96%; --d:26s; --s:5s;   --dl:-20s}
-@keyframes petal-fall{
-  0%{transform:translate3d(0,-10vh,0) rotate(0deg)}
-  100%{transform:translate3d(0,110vh,0) rotate(400deg)}
+.motes i:nth-child(2n){background:#93b6f5; box-shadow:0 0 9px 2px rgba(99,140,240,.5); opacity:.45}
+.motes i:nth-child(3n){background:#93eedd; box-shadow:0 0 10px 2px rgba(80,220,200,.45); opacity:.4}
+.motes i:nth-child(4n){width:3px; height:3px; opacity:.6}
+.motes i:nth-child(1){left:5%;  --d:16s; --s:3.2s; --dl:-1s}
+.motes i:nth-child(2){left:14%; --d:21s; --s:4.1s; --dl:-7s}
+.motes i:nth-child(3){left:23%; --d:18s; --s:3.6s; --dl:-13s}
+.motes i:nth-child(4){left:33%; --d:24s; --s:4.6s; --dl:-4s}
+.motes i:nth-child(5){left:41%; --d:19s; --s:3.9s; --dl:-16s}
+.motes i:nth-child(6){left:49%; --d:22s; --s:4.2s; --dl:-9s}
+.motes i:nth-child(7){left:58%; --d:17s; --s:3.3s; --dl:-2s}
+.motes i:nth-child(8){left:66%; --d:25s; --s:4.8s; --dl:-18s}
+.motes i:nth-child(9){left:74%; --d:20s; --s:3.7s; --dl:-11s}
+.motes i:nth-child(10){left:82%; --d:23s; --s:4.4s; --dl:-6s}
+.motes i:nth-child(11){left:90%; --d:18s; --s:3.5s; --dl:-15s}
+.motes i:nth-child(12){left:96%; --d:26s; --s:5s;   --dl:-20s}
+@keyframes mote-fall{
+  0%{transform:translate3d(0,-10vh,0) scale(.8); opacity:0}
+  12%{opacity:.6}
+  88%{opacity:.6}
+  100%{transform:translate3d(0,110vh,0) scale(1); opacity:0}
 }
-@keyframes petal-sway{0%{margin-left:-20px} 100%{margin-left:20px}}
+@keyframes mote-sway{0%{margin-left:-18px} 100%{margin-left:18px}}
 
-/* ---------- 顶部导航：磨砂白药丸条 ---------- */
+/* ---------- 顶部导航：磨砂白条 ---------- */
 .nav{
   height:62px; position:sticky; top:0; z-index:50;
-  background:rgba(255,255,255,.78);
-  backdrop-filter:blur(14px) saturate(1.4); -webkit-backdrop-filter:blur(14px) saturate(1.4);
-  border-bottom:1px solid rgba(163,138,199,.22);
+  background:rgba(255,255,255,.80);
+  backdrop-filter:blur(14px) saturate(1.3); -webkit-backdrop-filter:blur(14px) saturate(1.3);
+  border-bottom:1px solid rgba(120,152,196,.22);
 }
 .nav-inner{
   max-width:960px; margin:0 auto; height:100%; padding:0 22px;
@@ -100,7 +103,7 @@ main{flex:1 0 auto; display:flex; flex-direction:column; justify-content:flex-st
 }
 .logo-mark{
   width:30px; height:30px; border-radius:10px; flex:none; color:#fff;
-  background:var(--grad); box-shadow:0 6px 14px -6px rgba(232,96,154,.75);
+  background:var(--grad); box-shadow:0 6px 14px -6px rgba(26,110,168,.7);
   display:grid; place-items:center; font-size:14px; font-weight:800;
 }
 .nav-chip{
@@ -108,19 +111,19 @@ main{flex:1 0 auto; display:flex; flex-direction:column; justify-content:flex-st
   font-size:11.5px; letter-spacing:.04em; color:var(--ink-2);
   border:1px solid var(--line); background:rgba(255,255,255,.86);
 }
-.nav-chip .dot{width:6px; height:6px; border-radius:50%; background:var(--mint); flex:none; box-shadow:0 0 0 3px rgba(67,194,149,.16)}
+.nav-chip .dot{width:6px; height:6px; border-radius:50%; background:var(--mint); flex:none; box-shadow:0 0 0 3px rgba(47,185,138,.16)}
 
 /* ---------- 公告条 ---------- */
 .banner{
   width:700px; max-width:calc(100% - 32px); margin:22px auto 0; padding:12px 14px;
   background:rgba(255,255,255,.88); border:1px solid var(--line);
-  border-left:3px solid #ffb6d1; border-radius:14px;
+  border-left:3px solid #7cc0f0; border-radius:14px;
   color:var(--ink-2); font-size:12.5px;
   display:flex; align-items:center; gap:10px; box-shadow:var(--shadow-soft);
 }
 .banner .ico{
   width:22px; height:22px; border-radius:50%; flex:none;
-  color:#fff; background:linear-gradient(140deg,#ffa9c9,#f478a9);
+  color:#fff; background:linear-gradient(140deg,#2f9be0,#1a6ea8);
   display:grid; place-items:center; font-size:12px; font-weight:800;
 }
 .banner .txt{flex:1}
@@ -128,7 +131,7 @@ main{flex:1 0 auto; display:flex; flex-direction:column; justify-content:flex-st
   border:0; background:none; color:var(--ink-3); cursor:pointer; font-size:16px; line-height:1;
   padding:2px 8px; border-radius:999px; transition:.18s;
 }
-.banner .x:hover{background:rgba(255,143,187,.16); color:var(--sakura-deep)}
+.banner .x:hover{background:rgba(47,155,224,.14); color:var(--accent-deep)}
 
 /* ---------- 标题区 ---------- */
 .hero{text-align:center; padding:40px 20px 0}
@@ -136,15 +139,15 @@ main{flex:1 0 auto; display:flex; flex-direction:column; justify-content:flex-st
   display:inline-flex; align-items:center; gap:8px; margin-bottom:16px;
   padding:5px 14px; border-radius:999px;
   background:rgba(255,255,255,.86); border:1px solid var(--line);
-  font-size:10.5px; letter-spacing:.22em; text-transform:uppercase; color:var(--sakura-deep);
-  box-shadow:0 8px 18px -14px rgba(232,96,154,.9);
+  font-size:10.5px; letter-spacing:.22em; text-transform:uppercase; color:var(--accent-deep);
+  box-shadow:0 8px 18px -14px rgba(26,110,168,.85);
 }
-.kicker::before,.kicker::after{content:'✦'; font-size:10px; color:#c6a6f2; letter-spacing:0}
+.kicker::before,.kicker::after{content:'✦'; font-size:10px; color:#7cc4ef; letter-spacing:0}
 h1{
   margin:0 0 12px; font-size:clamp(30px,5vw,46px); font-weight:800; letter-spacing:.045em;
   background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent;
   -webkit-text-fill-color:transparent;
-  filter:drop-shadow(0 10px 20px rgba(255,143,187,.30));
+  filter:drop-shadow(0 10px 20px rgba(37,120,200,.22));
 }
 h1::after{
   content:''; display:block; width:112px; height:6px; margin:14px auto 0;
@@ -156,10 +159,10 @@ h1::after{
   background:rgba(255,255,255,.8); border:1px solid var(--line);
   font-size:12px; color:var(--ink-2);
 }
-.status .num{color:var(--sakura-deep); font-weight:800; font-variant-numeric:tabular-nums; font-size:13px}
+.status .num{color:var(--accent-deep); font-weight:800; font-variant-numeric:tabular-nums; font-size:13px}
 .status .tag{
   display:inline-block; margin-left:6px; padding:1px 9px; border-radius:999px;
-  background:rgba(67,194,149,.12); border:1px solid rgba(67,194,149,.30); color:#2f9a75;
+  background:rgba(47,185,138,.12); border:1px solid rgba(47,185,138,.30); color:#227a5b;
   font-size:11px;
 }
 
@@ -179,25 +182,25 @@ h1::after{
 .step-label{font-size:11.5px; color:var(--ink-3); transition:color .2s; white-space:nowrap; letter-spacing:.04em}
 .step.active .step-circle{
   border-color:transparent; background:var(--grad); color:#fff;
-  box-shadow:0 0 0 4px rgba(255,143,187,.18), 0 10px 18px -10px rgba(232,96,154,.9);
+  box-shadow:0 0 0 4px rgba(37,99,235,.16), 0 10px 18px -10px rgba(26,110,168,.85);
   animation:step-pulse 2.4s ease-in-out infinite;
 }
-.step.active .step-label{color:var(--sakura-deep); font-weight:700}
+.step.active .step-label{color:var(--accent-deep); font-weight:700}
 .step.completed{cursor:pointer}
-.step.completed .step-circle{border-color:rgba(67,194,149,.45); background:rgba(67,194,149,.12); color:#2f9a75}
-.step.completed:hover .step-circle{border-color:rgba(67,194,149,.75); background:rgba(67,194,149,.2)}
+.step.completed .step-circle{border-color:rgba(47,185,138,.45); background:rgba(47,185,138,.12); color:#227a5b}
+.step.completed:hover .step-circle{border-color:rgba(47,185,138,.75); background:rgba(47,185,138,.2)}
 .step.completed .step-label{color:var(--ink-2)}
 .step-line{
   width:46px; height:2px; margin-top:16px; flex:none; border:0; border-radius:2px;
-  background-image:repeating-linear-gradient(90deg, rgba(163,138,199,.42) 0 5px, transparent 5px 10px);
+  background-image:repeating-linear-gradient(90deg, rgba(120,152,196,.42) 0 5px, transparent 5px 10px);
 }
 .step-line.active{
-  background-image:linear-gradient(90deg,#ff9ec4,#c08bff,#6cc9f0);
+  background-image:linear-gradient(90deg,#2563eb,#0ea5e9,#22c3d6);
   opacity:.75;
 }
 @keyframes step-pulse{
-  0%,100%{box-shadow:0 0 0 4px rgba(255,143,187,.18), 0 10px 18px -10px rgba(232,96,154,.9)}
-  50%{box-shadow:0 0 0 7px rgba(255,143,187,.10), 0 10px 18px -10px rgba(232,96,154,.9)}
+  0%,100%{box-shadow:0 0 0 4px rgba(37,99,235,.16), 0 10px 18px -10px rgba(26,110,168,.85)}
+  50%{box-shadow:0 0 0 7px rgba(37,99,235,.08), 0 10px 18px -10px rgba(26,110,168,.85)}
 }
 
 /* ---------- 选择区 ---------- */
@@ -208,11 +211,11 @@ h1::after{
   width:100%; height:50px; padding:0 44px 0 17px; font:inherit; font-size:14.5px; color:var(--ink);
   background:rgba(255,255,255,.92); border:1.5px solid var(--line-2); border-radius:15px; outline:none;
   appearance:none; -webkit-appearance:none; cursor:pointer;
-  box-shadow:0 6px 16px -14px rgba(124,92,175,.8);
+  box-shadow:0 6px 16px -14px rgba(28,78,136,.75);
   transition:border-color .18s, box-shadow .18s, background .18s;
 }
-.field select:hover{border-color:rgba(255,143,187,.65); background:#fff}
-.field select:focus{border-color:var(--sakura); box-shadow:0 0 0 4px rgba(255,143,187,.20)}
+.field select:hover{border-color:rgba(47,155,224,.6); background:#fff}
+.field select:focus{border-color:var(--accent); box-shadow:0 0 0 4px rgba(47,155,224,.18)}
 .field select.placeholder{color:var(--ink-3)}
 .field select option{background:#fff; color:var(--ink)}
 /* 纯 CSS 下拉箭头 */
@@ -222,70 +225,40 @@ h1::after{
   border-radius:1px;
   transform:translateY(-72%) rotate(45deg); pointer-events:none; transition:border-color .18s;
 }
-.field:hover::after{border-color:var(--sakura-deep)}
+.field:hover::after{border-color:var(--accent-deep)}
 
 /* ---------- 完整版下载 ---------- */
 .allinone{width:700px; max-width:calc(100% - 40px); margin:14px auto 0; text-align:center}
 .link-btn{
   appearance:none; border:0; background:none; padding:5px 8px; font:inherit;
-  font-size:12.5px; color:var(--sakura-deep); cursor:pointer;
+  font-size:12.5px; color:var(--accent-deep); cursor:pointer;
   text-decoration:underline dotted; text-decoration-thickness:1.5px; text-underline-offset:5px; border-radius:8px;
   transition:color .18s;
 }
-.link-btn:hover{color:#c94b84}
-.link-btn:focus-visible{outline:2px solid var(--sakura); outline-offset:3px}
+.link-btn:hover{color:#124a75}
+.link-btn:focus-visible{outline:2px solid var(--accent); outline-offset:3px}
 
-/* ---------- 结果卡 ---------- */
-.result{
-  width:700px; max-width:calc(100% - 40px); min-width:0; margin:18px auto 0;
-  background:rgba(255,255,255,.94); border:1px solid rgba(255,255,255,.9); border-radius:20px;
-  overflow:hidden; box-shadow:var(--shadow);
-  animation:card-in .42s cubic-bezier(.2,.9,.3,1) both;
-}
-.result[hidden]{display:none}
-@keyframes card-in{from{opacity:0; transform:translateY(12px) scale(.99)} to{opacity:1; transform:none}}
-.r-bar{
-  display:flex; align-items:center; gap:7px; padding:11px 15px;
-  background:linear-gradient(180deg,#fff,#fdf5fb); border-bottom:1px solid var(--line);
-}
-.r-bar .dot{width:10px; height:10px; border-radius:50%; flex:none}
-.r-bar .dot:nth-child(1){background:#ff9ec1; box-shadow:0 0 0 3px rgba(255,158,193,.16)}
-.r-bar .dot:nth-child(2){background:#c6a8ff; box-shadow:0 0 0 3px rgba(198,168,255,.16)}
-.r-bar .dot:nth-child(3){background:#8fd8f5; box-shadow:0 0 0 3px rgba(143,216,245,.16)}
-.r-bar .r-file{
-  margin-left:9px; flex:1; min-width:0;
-  font-size:11.5px; color:var(--ink-3); letter-spacing:.05em;
-  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-}
-.r-bar .btn{height:28px; padding:0 12px; font-size:11.5px}
-.r-body{padding:18px}
-.r-head{display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:13px}
-.r-title{margin:0 0 3px; font-size:16px; font-weight:800; color:var(--ink); letter-spacing:.03em}
-.r-title::before{content:'❀'; margin-right:7px; color:var(--sakura); font-size:14px}
-.r-path{font-size:11.5px; color:var(--ink-3); letter-spacing:.02em}
-.r-path b{color:var(--ink-2); font-weight:700}
-
-/* 按钮：药丸形 */
+/* ---------- 按钮：药丸形 ---------- */
 .btn{
   appearance:none; border:1.5px solid var(--line-2); background:#fff; color:var(--ink);
   height:38px; padding:0 18px; border-radius:999px; font:inherit; font-size:13px; font-weight:600;
   cursor:pointer; white-space:nowrap;
   transition:border-color .18s, transform .18s, box-shadow .18s, background .18s;
 }
-.btn:hover{border-color:rgba(255,143,187,.7); transform:translateY(-1px); box-shadow:0 10px 18px -14px rgba(124,92,175,.9)}
+.btn:hover{border-color:rgba(47,155,224,.65); transform:translateY(-1px); box-shadow:0 10px 18px -14px rgba(28,78,136,.85)}
 .btn:active{transform:translateY(0)}
-.btn:focus-visible{outline:2px solid var(--sakura); outline-offset:3px}
+.btn:focus-visible{outline:2px solid var(--accent); outline-offset:3px}
 .btn-primary{
   background:var(--grad); border-color:transparent; color:#fff; font-weight:700;
-  box-shadow:0 12px 22px -12px rgba(232,96,154,.85);
+  box-shadow:0 12px 22px -12px rgba(26,110,168,.8);
 }
-.btn-primary:hover{box-shadow:0 16px 26px -12px rgba(232,96,154,.95); border-color:transparent}
-.btn-primary.ok{background:linear-gradient(120deg,#6fd9b4,#43c295); box-shadow:0 12px 22px -12px rgba(67,194,149,.85)}
+.btn-primary:hover{box-shadow:0 16px 26px -12px rgba(26,110,168,.9); border-color:transparent}
+.btn-primary.ok{background:linear-gradient(120deg,#5ed3ab,#2fb98a); box-shadow:0 12px 22px -12px rgba(47,185,138,.8)}
 
-/* 命令代码块：朴素——平底、细边、桌面横向滚动不折行 */
+/* ---------- 命令代码块：朴素——平底、细边、桌面横向滚动不折行 ---------- */
 pre{
   margin:0; padding:14px 16px; overflow:auto; max-width:100%;
-  background:var(--code-bg); color:#eadff8;
+  background:var(--code-bg); color:#dbeafe;
   border:1px solid rgba(255,255,255,.07); border-radius:14px;
   font-size:12.5px; line-height:1.8; tab-size:2;
   white-space:pre; font-family:var(--mono);
@@ -293,42 +266,173 @@ pre{
 .r-actions{display:flex; align-items:center; gap:10px; margin-top:14px; flex-wrap:wrap}
 .r-cmd-tip{margin-top:11px; font-size:12px; color:var(--ink-2); line-height:1.75}
 .r-cmd-tip code{
-  font-family:var(--mono); font-size:11px; background:rgba(169,139,255,.14); color:#7c5cc7;
+  font-family:var(--mono); font-size:11px; background:rgba(91,124,245,.13); color:#22658f;
   padding:2px 6px; border-radius:6px; margin:0 3px;
 }
 .r-sub{margin-top:9px; font-size:11.5px; color:var(--ink-3); line-height:1.75}
 .note{
   margin-top:12px; padding:10px 13px; border-radius:12px; font-size:11.5px;
-  background:rgba(169,139,255,.10); border:1px solid rgba(169,139,255,.24);
-  border-left:3px solid rgba(169,139,255,.6); color:#6b57a8;
+  background:rgba(91,124,245,.09); border:1px solid rgba(91,124,245,.22);
+  border-left:3px solid rgba(91,124,245,.55); color:#2b6091;
 }
-.note.warn-note{background:rgba(224,138,60,.08); border-color:rgba(224,138,60,.28); border-left-color:rgba(224,138,60,.7); color:var(--warn)}
+.note.warn-note{background:rgba(217,130,50,.08); border-color:rgba(217,130,50,.26); border-left-color:rgba(217,130,50,.65); color:var(--warn)}
 
 /* ---------- 页脚 ---------- */
 footer{
   flex:none; padding:24px 24px 20px; margin-top:44px; font-size:11.5px; color:var(--ink-3);
-  border-top:1px dashed rgba(163,138,199,.34); background:rgba(255,255,255,.55);
+  border-top:1px dashed rgba(120,152,196,.32); background:rgba(255,255,255,.55);
   position:relative; z-index:1;
 }
 .f-inner{max-width:960px; margin:0 auto}
 .f-brand{display:flex; align-items:center; justify-content:center; gap:9px; margin-bottom:12px}
 .f-brand .f-mark{
   width:22px; height:22px; border-radius:8px; flex:none; color:#fff;
-  background:var(--grad); box-shadow:0 5px 12px -6px rgba(232,96,154,.8);
+  background:var(--grad); box-shadow:0 5px 12px -6px rgba(26,110,168,.75);
   display:grid; place-items:center; font-size:11px; font-weight:800;
 }
 .f-brand .f-name{font-size:12.5px; color:var(--ink-2); letter-spacing:.06em}
 .f-bottom{
   display:flex; align-items:center; justify-content:space-between; gap:12px;
-  border-top:1px dashed rgba(163,138,199,.26); padding-top:13px; flex-wrap:wrap; text-align:left;
+  border-top:1px dashed rgba(120,152,196,.24); padding-top:13px; flex-wrap:wrap; text-align:left;
   letter-spacing:.02em;
 }
 .f-bottom b{color:var(--ink-2); font-weight:700}
 
+/* ================= 右侧：一台小电视（CRT 显示器） ================= */
+/* 机壳：银白塑料（冷灰蓝调），底部带一圈内阴影 */
+.result{
+  position:relative; margin-bottom:20px;
+  background:linear-gradient(160deg,#ffffff 0%,#f2f7fc 52%,#e4edf7 100%);
+  border:1px solid rgba(120,152,196,.30);
+  border-radius:26px;
+  padding:13px;
+  box-shadow:0 26px 50px -32px rgba(28,78,136,.60), inset 0 1px 0 #fff,
+             inset 0 -2px 4px rgba(120,152,196,.14);
+  animation:card-in .42s cubic-bezier(.2,.9,.3,1) both;
+}
+.result[hidden]{display:none}
+@keyframes card-in{from{opacity:0; transform:translateY(12px) scale(.99)} to{opacity:1; transform:none}}
+
+/* 底座：梯形托架 + 散热槽，让电视机「坐」得住，同时填满下方空间 */
+.result::after,.ph::after{
+  content:''; position:absolute; left:13%; right:13%; bottom:-17px; height:17px; z-index:0;
+  background:linear-gradient(180deg,#e7eef7 0%,#cfdcea 100%);
+  border-radius:0 0 10px 10px;
+  clip-path:polygon(7% 0,93% 0,100% 100%,0 100%);
+  box-shadow:0 16px 24px -18px rgba(28,78,136,.65);
+  pointer-events:none;
+}
+
+/* 机壳顶部：品牌 + 指示灯 + 复位按钮 */
+.r-bar{
+  display:flex; align-items:center; gap:7px; padding:0 5px 11px;
+  background:none; border:0;
+}
+.r-bar .r-file{
+  margin-left:4px; font-size:10px; letter-spacing:.22em; text-transform:uppercase; color:#8197b0;
+}
+.r-bar .dot{
+  width:9px; height:9px; border-radius:50%;
+  box-shadow:inset 0 -1px 1px rgba(28,78,136,.28);
+}
+.r-bar .dot:nth-child(1){background:#4f9bf0}
+.r-bar .dot:nth-child(2){background:#4fc4dc}
+.r-bar .dot:nth-child(3){background:#5ecfa4}
+.r-bar .btn{
+  height:26px; padding:0 12px; font-size:11px; border-radius:999px;
+  border-color:rgba(120,152,196,.38); background:#fff; color:#31506e;
+}
+.r-bar .btn:hover{border-color:rgba(47,155,224,.7)}
+.tv-led{
+  width:7px; height:7px; border-radius:50%; flex:none; margin-left:auto;
+  background:#5fd6ab; box-shadow:0 0 8px 1px rgba(95,214,171,.85);
+  animation:led-blink 3.6s ease-in-out infinite;
+}
+@keyframes led-blink{0%,93%,100%{opacity:1}96%{opacity:.3}}
+
+/* 屏幕：深蓝 + 扫描线 + 玻璃反光 */
+.r-body{
+  position:relative; padding:20px 18px; border-radius:18px;
+  background:radial-gradient(125% 95% at 50% 0%, #24405c 0%, #16283c 44%, #0d1826 100%);
+  border:1px solid rgba(255,255,255,.10); color:#e6f0fb;
+  box-shadow:inset 0 0 64px rgba(0,0,0,.55), inset 0 2px 0 rgba(255,255,255,.05),
+             0 12px 24px -18px rgba(10,30,55,.9);
+}
+.r-body::before{
+  content:''; position:absolute; inset:0; border-radius:18px; pointer-events:none; z-index:0;
+  background:repeating-linear-gradient(180deg, rgba(255,255,255,.035) 0 1px, transparent 1px 3px);
+}
+.r-body::after{
+  content:''; position:absolute; inset:0; border-radius:18px; pointer-events:none; z-index:0;
+  background:linear-gradient(114deg, rgba(255,255,255,.10) 0%, rgba(255,255,255,0) 34%,
+             rgba(255,255,255,0) 66%, rgba(255,255,255,.045) 100%);
+}
+.r-body > *{position:relative; z-index:1}
+.r-head{display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:13px}
+.r-title{margin:0 0 3px; font-size:16px; font-weight:800; color:#fff; letter-spacing:.03em}
+.r-title::before{content:'▸'; margin-right:7px; color:#5fc8e6; font-size:14px}
+.r-path{font-size:11.5px; color:#8ea4bd; letter-spacing:.02em}
+.r-path b{color:#c7d8ee; font-weight:700}
+pre{background:rgba(0,0,0,.36); border:1px solid rgba(255,255,255,.11); color:#e8f2ff}
+.r-cmd-tip{color:#a8bdd6}
+.r-cmd-tip code{background:rgba(91,124,245,.26); color:#a8d4f5}
+.r-sub{color:#8fa8c2}
+.note{background:rgba(91,124,245,.16); border-color:rgba(91,124,245,.36); border-left-color:rgba(140,180,250,.85); color:#cfe0f5}
+.note.warn-note{background:rgba(217,130,50,.16); border-color:rgba(217,130,50,.42); border-left-color:rgba(255,178,110,.9); color:#ffd3a4}
+.r-body .btn:not(.btn-primary){border-color:rgba(255,255,255,.22); background:rgba(255,255,255,.94); color:#1d3350}
+.r-body .btn:not(.btn-primary):hover{border-color:#fff; background:#fff}
+.r-body .btn-primary,
+.r-body .btn-primary:hover{background:var(--grad); border-color:transparent; color:#fff}
+.r-body .btn-primary.ok,
+.r-body .btn-primary.ok:hover{background:linear-gradient(120deg,#5ed3ab,#2fb98a); color:#fff}
+
+/* 机身底部：两个旋钮 + 喇叭网 */
+.tv-foot{display:flex; align-items:center; gap:10px; padding:12px 6px 3px}
+.tv-knob{
+  width:16px; height:16px; border-radius:50%; flex:none;
+  background:radial-gradient(circle at 34% 30%, #fff 0%, #eef3f9 52%, #cbd8e7 100%);
+  border:1px solid rgba(120,152,196,.5);
+  box-shadow:0 1px 2px rgba(28,78,136,.28), inset 0 -1px 2px rgba(120,152,196,.3);
+}
+.tv-grill{
+  flex:1; height:10px; border-radius:6px;
+  background-image:radial-gradient(circle, rgba(120,152,196,.45) 1px, transparent 1.2px);
+  background-size:7px 7px; background-position:0 50%; opacity:.8;
+}
+.tv-brand-mini{font-size:9px; letter-spacing:.24em; color:#8ba0b8; flex:none}
+
+/* 空状态：一台「无信号」的电视 */
+.ph{position:relative; margin-bottom:20px}
+.ph-screen{
+  position:relative; display:flex; flex-direction:column; align-items:center; gap:9px;
+  padding:36px 22px 32px; border-radius:18px; text-align:center; overflow:hidden;
+  background:radial-gradient(125% 95% at 50% 0%, #24405c 0%, #16283c 44%, #0d1826 100%);
+  border:1px solid rgba(255,255,255,.10);
+  box-shadow:inset 0 0 64px rgba(0,0,0,.55);
+}
+.ph-screen::after{
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background:repeating-linear-gradient(180deg, rgba(255,255,255,.03) 0 1px, transparent 1px 3px);
+}
+.ph-screen > *{position:relative; z-index:1}
+.ph-ico{font-size:24px; line-height:1; color:#7fd0ee}
+.ph-screen b{font-size:14px; color:#fff; font-weight:700}
+.ph-nosig{
+  font-family:var(--mono); font-size:10px; letter-spacing:.34em; text-transform:uppercase;
+  color:#62c8f0; animation:nosig 2.8s steps(1) infinite;
+}
+@keyframes nosig{0%,72%{opacity:.9}76%,100%{opacity:.16}}
+.ph-txt{font-size:12px; color:#93aec9; line-height:1.85; max-width:270px}
+.ph-chips{display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin-top:3px}
+.ph-chips i{
+  font-style:normal; font-size:10.5px; padding:3px 10px; border-radius:999px;
+  border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.06); color:#9fbada;
+}
+
 /* ---------- 响应式 / 动效降级 ---------- */
 @media (prefers-reduced-motion: reduce){
   *{transition-duration:.01ms !important; animation:none !important}
-  .petals{display:none}
+  .motes{display:none}
 }
 @media (max-width:640px){
   h1{font-size:27px; letter-spacing:.03em}
@@ -350,9 +454,14 @@ footer{
   .btn{height:36px; padding:0 15px; font-size:12.5px}
   /* 窄屏下让长命令折行显示，避免关键参数被裁掉（复制仍是原文，不含软换行） */
   pre{white-space:pre-wrap; overflow-wrap:anywhere; font-size:11px; line-height:1.75}
-  .petals i{width:9px; height:9px}
+  .motes i{width:5px; height:5px}
   footer{margin-top:34px}
   .f-bottom{justify-content:center; text-align:center}
+  .result{padding:10px; border-radius:22px; margin-bottom:18px}
+  .r-body{padding:16px 14px; border-radius:15px}
+  .r-body::before,.r-body::after{border-radius:15px}
+  .tv-foot{padding:10px 4px 1px}
+  .result::after,.ph::after{left:10%; right:10%; bottom:-14px; height:14px}
 }
 
 /* ---------- 桌面双栏布局：左边选，右边看 ---------- */
@@ -373,184 +482,36 @@ footer{
   .steps-indicator{justify-content:flex-start; padding:0; margin:28px 0 22px}
   .picker{width:auto; max-width:none; margin:0}
   .allinone{width:auto; max-width:none; margin:14px 0 0; text-align:left}
-  /* 右侧：标题 + 吸顶卡片；内容超高时卡片内部滚动，标题栏始终可见 */
-  .col-side{padding-top:32px}
+  /* 右栏：纵向排布，电视吃满剩余高度，屏幕内部滚动 */
+  .col-side{padding-top:32px; display:flex; flex-direction:column}
   .col-tag{
-    display:flex; align-items:center; gap:9px; margin:0 0 12px;
+    display:flex; align-items:center; gap:9px; margin:0 0 12px; flex:none;
     font-size:10.5px; letter-spacing:.18em; text-transform:uppercase; color:var(--ink-3);
   }
   .col-tag::before{content:''; width:22px; height:2px; border-radius:2px; background:var(--grad); opacity:.85; flex:none}
   .result{
-    margin:0; width:auto; max-width:none; position:static;
-    display:flex; flex-direction:column; max-height:calc(100vh - 118px);
+    margin:0 0 20px; width:auto; max-width:none; position:relative;
+    display:flex; flex-direction:column; flex:1 1 auto;
+    max-height:calc(100vh - 100px);
   }
-  .r-body{overflow:auto; overscroll-behavior:contain; scrollbar-width:thin}
   .r-bar{flex:none}
+  .r-body{flex:1 1 auto; min-height:0; overflow:auto; overscroll-behavior:contain; scrollbar-width:thin}
   .r-body::-webkit-scrollbar{width:8px}
-  .r-body::-webkit-scrollbar-thumb{background:rgba(163,138,199,.35); border-radius:8px}
-  /* 空状态卡由电视样式统一处理，这里只负责「出结果后让位」 */
+  .r-body::-webkit-scrollbar-thumb{background:rgba(140,180,250,.35); border-radius:8px}
+  .ph{display:flex; flex-direction:column; flex:1 1 auto; max-height:calc(100vh - 100px)}
+  .ph .ph-screen{flex:1 1 auto; justify-content:center}
+  .ph .tv-foot{flex:none}
+  /* 出结果后空状态让位 */
   .result:not([hidden]) + .ph{display:none}
 }
 @media (max-width:979px){
   .col-tag,.ph{display:none}
 }
-
-/* ================= 右侧：一台小电视（CRT 显示器） ================= */
-/* 外壳：奶油粉紫的塑料机壳 */
-.result{
-  background:linear-gradient(160deg,#fffcfe 0%,#f6edfb 52%,#ebe3f9 100%);
-  border:1px solid rgba(163,138,199,.32);
-  border-radius:26px;
-  padding:13px;
-  box-shadow:0 26px 50px -32px rgba(88,58,138,.62), inset 0 1px 0 rgba(255,255,255,.95),
-             inset 0 -2px 4px rgba(140,110,190,.12);
-}
-/* 机壳顶部：品牌 + 指示灯 + 复位按钮 */
-.r-bar{
-  display:flex; align-items:center; gap:7px; padding:0 5px 11px;
-  background:none; border:0;
-}
-.r-bar .r-file{
-  margin-left:4px; font-size:10px; letter-spacing:.22em; text-transform:uppercase; color:#a294bd;
-}
-.r-bar .dot{
-  width:9px; height:9px; border-radius:50%;
-  box-shadow:inset 0 -1px 1px rgba(90,60,140,.28);
-}
-.r-bar .btn{
-  height:26px; padding:0 12px; font-size:11px; border-radius:999px;
-  border-color:rgba(163,138,199,.38); background:#fff; color:#5b4b73;
-}
-.r-bar .btn:hover{border-color:rgba(255,143,187,.8)}
-.tv-led{
-  width:7px; height:7px; border-radius:50%; flex:none; margin-left:auto;
-  background:#6fe3b4; box-shadow:0 0 8px 1px rgba(111,227,180,.85);
-  animation:led-blink 3.6s ease-in-out infinite;
-}
-@keyframes led-blink{0%,93%,100%{opacity:1}96%{opacity:.3}}
-
-/* 屏幕：深色 + 扫描线 + 玻璃反光 */
-.r-body{
-  position:relative; padding:20px 18px; border-radius:18px;
-  background:radial-gradient(125% 95% at 50% 0%, #3b3252 0%, #2b2439 44%, #211c2d 100%);
-  border:1px solid rgba(255,255,255,.10); color:#efe6fb;
-  box-shadow:inset 0 0 64px rgba(0,0,0,.55), inset 0 2px 0 rgba(255,255,255,.05),
-             0 12px 24px -18px rgba(60,35,100,.9);
-}
-.r-body::before{
-  content:''; position:absolute; inset:0; border-radius:18px; pointer-events:none; z-index:0;
-  background:repeating-linear-gradient(180deg, rgba(255,255,255,.035) 0 1px, transparent 1px 3px);
-}
-.r-body::after{
-  content:''; position:absolute; inset:0; border-radius:18px; pointer-events:none; z-index:0;
-  background:linear-gradient(114deg, rgba(255,255,255,.10) 0%, rgba(255,255,255,0) 34%,
-             rgba(255,255,255,0) 66%, rgba(255,255,255,.045) 100%);
-}
-.r-body > *{position:relative; z-index:1}
-.r-title{color:#fff}
-.r-path{color:#a99bc1}
-.r-path b{color:#dbd0f2}
-pre{background:rgba(0,0,0,.36); border:1px solid rgba(255,255,255,.11); color:#f3ecff}
-.r-cmd-tip{color:#c6b9dd}
-.r-cmd-tip code{background:rgba(169,139,255,.22); color:#dccdff}
-.r-sub{color:#9d8fb8}
-.note{background:rgba(169,139,255,.16); border-color:rgba(169,139,255,.36); border-left-color:rgba(198,168,255,.85); color:#d9cbf7}
-.note.warn-note{background:rgba(224,138,60,.16); border-color:rgba(224,138,60,.42); border-left-color:rgba(255,178,110,.9); color:#ffd3a4}
-.r-body .btn:not(.btn-primary){border-color:rgba(255,255,255,.22); background:rgba(255,255,255,.94); color:#4a3a63}
-.r-body .btn:not(.btn-primary):hover{border-color:#fff; background:#fff}
-.r-body .btn-primary,
-.r-body .btn-primary:hover{background:var(--grad); border-color:transparent; color:#fff}
-.r-body .btn-primary.ok,
-.r-body .btn-primary.ok:hover{background:linear-gradient(120deg,#6fd9b4,#43c295); color:#fff}
-
-/* 机身底部：两个旋钮 + 喇叭网 */
-.tv-foot{display:flex; align-items:center; gap:10px; padding:12px 6px 3px}
-.tv-knob{
-  width:16px; height:16px; border-radius:50%; flex:none;
-  background:radial-gradient(circle at 34% 30%, #fff 0%, #ece1f8 52%, #cdbae7 100%);
-  border:1px solid rgba(163,138,199,.5);
-  box-shadow:0 1px 2px rgba(90,60,140,.28), inset 0 -1px 2px rgba(120,90,170,.28);
-}
-.tv-grill{
-  flex:1; height:10px; border-radius:6px;
-  background-image:radial-gradient(circle, rgba(163,138,199,.42) 1px, transparent 1.2px);
-  background-size:7px 7px; background-position:0 50%; opacity:.8;
-}
-.tv-brand-mini{font-size:9px; letter-spacing:.24em; color:#b3a4cc; flex:none}
-
-/* 空状态：一台「无信号」的电视 */
-.ph-screen{
-  position:relative; display:flex; flex-direction:column; align-items:center; gap:9px;
-  padding:36px 22px 32px; border-radius:18px; text-align:center; overflow:hidden;
-  background:radial-gradient(125% 95% at 50% 0%, #3b3252 0%, #2b2439 44%, #211c2d 100%);
-  border:1px solid rgba(255,255,255,.10);
-  box-shadow:inset 0 0 64px rgba(0,0,0,.55);
-}
-.ph-screen::after{
-  content:''; position:absolute; inset:0; pointer-events:none;
-  background:repeating-linear-gradient(180deg, rgba(255,255,255,.03) 0 1px, transparent 1px 3px);
-}
-.ph-screen > *{position:relative; z-index:1}
-.ph-ico{font-size:24px; line-height:1; color:#cbb6ff}
-.ph-screen b{font-size:14px; color:#fff; font-weight:700}
-.ph-nosig{
-  font-family:var(--mono); font-size:10px; letter-spacing:.34em; text-transform:uppercase;
-  color:#ff9ec4; animation:nosig 2.8s steps(1) infinite;
-}
-@keyframes nosig{0%,72%{opacity:.9}76%,100%{opacity:.16}}
-.ph-txt{font-size:12px; color:#a496bd; line-height:1.85; max-width:270px}
-.ph-chips{display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin-top:3px}
-.ph-chips i{
-  font-style:normal; font-size:10.5px; padding:3px 10px; border-radius:999px;
-  border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.06); color:#b9a9d6;
-}
-
-/* 信号源面板：填满右下方的空当 */
-.side-extra{
-  margin-top:18px; padding:16px 18px 14px; border-radius:20px;
-  background:rgba(255,255,255,.9); border:1px solid var(--line); box-shadow:var(--shadow-soft);
-}
-.se-head{
-  display:flex; align-items:center; gap:8px; margin-bottom:8px;
-  font-size:10.5px; letter-spacing:.18em; text-transform:uppercase; color:var(--ink-3);
-}
-.se-dot{width:7px; height:7px; border-radius:50%; background:var(--mint); box-shadow:0 0 0 3px rgba(67,194,149,.16)}
-.se-row{
-  display:flex; align-items:baseline; justify-content:space-between; gap:14px;
-  padding:7px 0; font-size:12px; color:var(--ink-2);
-  border-bottom:1px dashed rgba(163,138,199,.24);
-}
-.se-row:last-of-type{border-bottom:0}
-.se-row b{font-size:12px; font-weight:700; color:var(--ink); text-align:right; word-break:break-all}
-.se-tips{margin-top:10px; padding-top:12px; border-top:1px dashed rgba(163,138,199,.24)}
-.se-tip-t{font-size:11px; letter-spacing:.1em; color:var(--sakura-deep); font-weight:700}
-.se-tips ol{margin:8px 0 0; padding-left:18px; font-size:11.5px; line-height:2; color:var(--ink-3)}
-.se-tips li::marker{color:var(--sakura)}
-
-/* 桌面：右栏不再吸顶，改成完整的一台机器 + 面板（两栏自然等高） */
-@media (min-width:980px){
-  .r-body{flex:1 1 auto; min-height:0}
-  .ph{
-    margin:0; padding:13px; position:static;
-    border:1px solid rgba(163,138,199,.32); border-radius:26px;
-    background:linear-gradient(160deg,#fffcfe 0%,#f6edfb 52%,#ebe3f9 100%);
-    box-shadow:0 26px 50px -32px rgba(88,58,138,.62), inset 0 1px 0 rgba(255,255,255,.95);
-    display:block; text-align:center;
-  }
-  .side-extra{display:block}
-}
-@media (max-width:979px){
-  .side-extra{display:none}
-  .result{padding:10px}
-  .r-body{padding:16px 14px; border-radius:15px}
-  .r-body::before,.r-body::after{border-radius:15px}
-  .tv-foot{padding:10px 4px 1px}
-}
 </style>
 </head>
 <body>
 
-<div class="petals" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+<div class="motes" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
 
 <header class="nav">
   <div class="nav-inner">
@@ -661,22 +622,7 @@ pre{background:rgba(0,0,0,.36); border:1px solid rgba(255,255,255,.11); color:#f
     </div>
   </div>
 
-  <div class="side-extra">
-    <div class="se-head"><span class="se-dot"></span>信号源</div>
-    <div class="se-row"><span>KMS 主机</span><b id="tvHost">读取中…</b></div>
-    <div class="se-row"><span>连接方式</span><b>内网直连 · 不联网</b></div>
-    <div class="se-row"><span>适用系统</span><b>Windows / Office</b></div>
-    <div class="se-tips">
-      <span class="se-tip-t">三步上手</span>
-      <ol>
-        <li>选好产品，点「复制命令」</li>
-        <li>以管理员身份打开 PowerShell，粘贴执行</li>
-        <li>提示成功即完成，无需重启</li>
-      </ol>
-    </div>
-  </div>
-
-  </aside>
+</aside>
   </div><!-- /.cols -->
 
 </main>
@@ -692,18 +638,6 @@ pre{background:rgba(0,0,0,.36); border:1px solid rgba(255,255,255,.11); color:#f
 </footer>
 
 <script src="config.js"></script>
-
-<script>
-/* 只做一件事：把 config.js 里的 KMS 主机显示到右侧「信号源」面板，不参与激活逻辑 */
-(function () {
-  var c = (typeof window !== 'undefined' && window.KMS_CONFIG) ? window.KMS_CONFIG : null;
-  var el = document.getElementById('tvHost');
-  if (!el) return;
-  var host = (c && c.host) ? String(c.host) : '';
-  el.textContent = host || '未配置';
-  if (!host) el.style.color = '#e08a3c';
-})();
-</script>
 
 <script>
 /* 字符 → GBK 码表：下载 .bat 时用，脚本生成，勿手改 */
