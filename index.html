@@ -381,32 +381,170 @@ footer{
   }
   .col-tag::before{content:''; width:22px; height:2px; border-radius:2px; background:var(--grad); opacity:.85; flex:none}
   .result{
-    margin:0; width:auto; max-width:none; position:sticky; top:86px;
-    display:flex; flex-direction:column; max-height:calc(100vh - 112px);
+    margin:0; width:auto; max-width:none; position:static;
+    display:flex; flex-direction:column; max-height:calc(100vh - 118px);
   }
   .r-body{overflow:auto; overscroll-behavior:contain; scrollbar-width:thin}
   .r-bar{flex:none}
   .r-body::-webkit-scrollbar{width:8px}
   .r-body::-webkit-scrollbar-thumb{background:rgba(163,138,199,.35); border-radius:8px}
-  /* 空状态 */
-  .ph{
-    position:sticky; top:86px; margin:0; padding:36px 26px;
-    display:flex; flex-direction:column; align-items:center; gap:9px; text-align:center;
-    border:2px dashed rgba(163,138,199,.40); border-radius:20px;
-    background:rgba(255,255,255,.55);
-  }
-  .ph-ico{font-size:26px; line-height:1; color:#d9bcf5}
-  .ph b{font-size:14px; color:var(--ink-2); font-weight:700}
-  .ph-txt{font-size:12px; color:var(--ink-3); line-height:1.85; max-width:270px}
-  .ph-chips{display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin-top:5px}
-  .ph-chips i{
-    font-style:normal; font-size:10.5px; padding:3px 10px; border-radius:999px;
-    border:1px solid var(--line); background:rgba(255,255,255,.78); color:var(--ink-3);
-  }
+  /* 空状态卡由电视样式统一处理，这里只负责「出结果后让位」 */
   .result:not([hidden]) + .ph{display:none}
 }
 @media (max-width:979px){
   .col-tag,.ph{display:none}
+}
+
+/* ================= 右侧：一台小电视（CRT 显示器） ================= */
+/* 外壳：奶油粉紫的塑料机壳 */
+.result{
+  background:linear-gradient(160deg,#fffcfe 0%,#f6edfb 52%,#ebe3f9 100%);
+  border:1px solid rgba(163,138,199,.32);
+  border-radius:26px;
+  padding:13px;
+  box-shadow:0 26px 50px -32px rgba(88,58,138,.62), inset 0 1px 0 rgba(255,255,255,.95),
+             inset 0 -2px 4px rgba(140,110,190,.12);
+}
+/* 机壳顶部：品牌 + 指示灯 + 复位按钮 */
+.r-bar{
+  display:flex; align-items:center; gap:7px; padding:0 5px 11px;
+  background:none; border:0;
+}
+.r-bar .r-file{
+  margin-left:4px; font-size:10px; letter-spacing:.22em; text-transform:uppercase; color:#a294bd;
+}
+.r-bar .dot{
+  width:9px; height:9px; border-radius:50%;
+  box-shadow:inset 0 -1px 1px rgba(90,60,140,.28);
+}
+.r-bar .btn{
+  height:26px; padding:0 12px; font-size:11px; border-radius:999px;
+  border-color:rgba(163,138,199,.38); background:#fff; color:#5b4b73;
+}
+.r-bar .btn:hover{border-color:rgba(255,143,187,.8)}
+.tv-led{
+  width:7px; height:7px; border-radius:50%; flex:none; margin-left:auto;
+  background:#6fe3b4; box-shadow:0 0 8px 1px rgba(111,227,180,.85);
+  animation:led-blink 3.6s ease-in-out infinite;
+}
+@keyframes led-blink{0%,93%,100%{opacity:1}96%{opacity:.3}}
+
+/* 屏幕：深色 + 扫描线 + 玻璃反光 */
+.r-body{
+  position:relative; padding:20px 18px; border-radius:18px;
+  background:radial-gradient(125% 95% at 50% 0%, #3b3252 0%, #2b2439 44%, #211c2d 100%);
+  border:1px solid rgba(255,255,255,.10); color:#efe6fb;
+  box-shadow:inset 0 0 64px rgba(0,0,0,.55), inset 0 2px 0 rgba(255,255,255,.05),
+             0 12px 24px -18px rgba(60,35,100,.9);
+}
+.r-body::before{
+  content:''; position:absolute; inset:0; border-radius:18px; pointer-events:none; z-index:0;
+  background:repeating-linear-gradient(180deg, rgba(255,255,255,.035) 0 1px, transparent 1px 3px);
+}
+.r-body::after{
+  content:''; position:absolute; inset:0; border-radius:18px; pointer-events:none; z-index:0;
+  background:linear-gradient(114deg, rgba(255,255,255,.10) 0%, rgba(255,255,255,0) 34%,
+             rgba(255,255,255,0) 66%, rgba(255,255,255,.045) 100%);
+}
+.r-body > *{position:relative; z-index:1}
+.r-title{color:#fff}
+.r-path{color:#a99bc1}
+.r-path b{color:#dbd0f2}
+pre{background:rgba(0,0,0,.36); border:1px solid rgba(255,255,255,.11); color:#f3ecff}
+.r-cmd-tip{color:#c6b9dd}
+.r-cmd-tip code{background:rgba(169,139,255,.22); color:#dccdff}
+.r-sub{color:#9d8fb8}
+.note{background:rgba(169,139,255,.16); border-color:rgba(169,139,255,.36); border-left-color:rgba(198,168,255,.85); color:#d9cbf7}
+.note.warn-note{background:rgba(224,138,60,.16); border-color:rgba(224,138,60,.42); border-left-color:rgba(255,178,110,.9); color:#ffd3a4}
+.r-body .btn:not(.btn-primary){border-color:rgba(255,255,255,.22); background:rgba(255,255,255,.94); color:#4a3a63}
+.r-body .btn:not(.btn-primary):hover{border-color:#fff; background:#fff}
+.r-body .btn-primary,
+.r-body .btn-primary:hover{background:var(--grad); border-color:transparent; color:#fff}
+.r-body .btn-primary.ok,
+.r-body .btn-primary.ok:hover{background:linear-gradient(120deg,#6fd9b4,#43c295); color:#fff}
+
+/* 机身底部：两个旋钮 + 喇叭网 */
+.tv-foot{display:flex; align-items:center; gap:10px; padding:12px 6px 3px}
+.tv-knob{
+  width:16px; height:16px; border-radius:50%; flex:none;
+  background:radial-gradient(circle at 34% 30%, #fff 0%, #ece1f8 52%, #cdbae7 100%);
+  border:1px solid rgba(163,138,199,.5);
+  box-shadow:0 1px 2px rgba(90,60,140,.28), inset 0 -1px 2px rgba(120,90,170,.28);
+}
+.tv-grill{
+  flex:1; height:10px; border-radius:6px;
+  background-image:radial-gradient(circle, rgba(163,138,199,.42) 1px, transparent 1.2px);
+  background-size:7px 7px; background-position:0 50%; opacity:.8;
+}
+.tv-brand-mini{font-size:9px; letter-spacing:.24em; color:#b3a4cc; flex:none}
+
+/* 空状态：一台「无信号」的电视 */
+.ph-screen{
+  position:relative; display:flex; flex-direction:column; align-items:center; gap:9px;
+  padding:36px 22px 32px; border-radius:18px; text-align:center; overflow:hidden;
+  background:radial-gradient(125% 95% at 50% 0%, #3b3252 0%, #2b2439 44%, #211c2d 100%);
+  border:1px solid rgba(255,255,255,.10);
+  box-shadow:inset 0 0 64px rgba(0,0,0,.55);
+}
+.ph-screen::after{
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background:repeating-linear-gradient(180deg, rgba(255,255,255,.03) 0 1px, transparent 1px 3px);
+}
+.ph-screen > *{position:relative; z-index:1}
+.ph-ico{font-size:24px; line-height:1; color:#cbb6ff}
+.ph-screen b{font-size:14px; color:#fff; font-weight:700}
+.ph-nosig{
+  font-family:var(--mono); font-size:10px; letter-spacing:.34em; text-transform:uppercase;
+  color:#ff9ec4; animation:nosig 2.8s steps(1) infinite;
+}
+@keyframes nosig{0%,72%{opacity:.9}76%,100%{opacity:.16}}
+.ph-txt{font-size:12px; color:#a496bd; line-height:1.85; max-width:270px}
+.ph-chips{display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin-top:3px}
+.ph-chips i{
+  font-style:normal; font-size:10.5px; padding:3px 10px; border-radius:999px;
+  border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.06); color:#b9a9d6;
+}
+
+/* 信号源面板：填满右下方的空当 */
+.side-extra{
+  margin-top:18px; padding:16px 18px 14px; border-radius:20px;
+  background:rgba(255,255,255,.9); border:1px solid var(--line); box-shadow:var(--shadow-soft);
+}
+.se-head{
+  display:flex; align-items:center; gap:8px; margin-bottom:8px;
+  font-size:10.5px; letter-spacing:.18em; text-transform:uppercase; color:var(--ink-3);
+}
+.se-dot{width:7px; height:7px; border-radius:50%; background:var(--mint); box-shadow:0 0 0 3px rgba(67,194,149,.16)}
+.se-row{
+  display:flex; align-items:baseline; justify-content:space-between; gap:14px;
+  padding:7px 0; font-size:12px; color:var(--ink-2);
+  border-bottom:1px dashed rgba(163,138,199,.24);
+}
+.se-row:last-of-type{border-bottom:0}
+.se-row b{font-size:12px; font-weight:700; color:var(--ink); text-align:right; word-break:break-all}
+.se-tips{margin-top:10px; padding-top:12px; border-top:1px dashed rgba(163,138,199,.24)}
+.se-tip-t{font-size:11px; letter-spacing:.1em; color:var(--sakura-deep); font-weight:700}
+.se-tips ol{margin:8px 0 0; padding-left:18px; font-size:11.5px; line-height:2; color:var(--ink-3)}
+.se-tips li::marker{color:var(--sakura)}
+
+/* 桌面：右栏不再吸顶，改成完整的一台机器 + 面板（两栏自然等高） */
+@media (min-width:980px){
+  .r-body{flex:1 1 auto; min-height:0}
+  .ph{
+    margin:0; padding:13px; position:static;
+    border:1px solid rgba(163,138,199,.32); border-radius:26px;
+    background:linear-gradient(160deg,#fffcfe 0%,#f6edfb 52%,#ebe3f9 100%);
+    box-shadow:0 26px 50px -32px rgba(88,58,138,.62), inset 0 1px 0 rgba(255,255,255,.95);
+    display:block; text-align:center;
+  }
+  .side-extra{display:block}
+}
+@media (max-width:979px){
+  .side-extra{display:none}
+  .result{padding:10px}
+  .r-body{padding:16px 14px; border-radius:15px}
+  .r-body::before,.r-body::after{border-radius:15px}
+  .tv-foot{padding:10px 4px 1px}
 }
 </style>
 </head>
@@ -480,7 +618,8 @@ footer{
   <section class="result" id="result" hidden>
     <div class="r-bar">
       <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-      <span class="r-file">kms — 命令</span>
+      <span class="r-file">kms-tv · 输出</span>
+      <span class="tv-led" aria-hidden="true"></span>
       <button class="btn" id="btnReset" type="button">重新选择</button>
     </div>
     <div class="r-body">
@@ -499,13 +638,42 @@ footer{
       <div class="r-sub" id="rSub">不会用命令行？下载后直接双击，会弹一次「用户账户控制」，点「是」即以管理员身份运行。浏览器若提示「文件不常见」，点「保留」即可。</div>
       <div class="note" id="rNote" hidden></div>
     </div>
+
+    <div class="tv-foot" aria-hidden="true">
+      <span class="tv-knob"></span><span class="tv-knob"></span>
+      <span class="tv-grill"></span>
+      <span class="tv-brand-mini">KMS</span>
+    </div>
   </section>
 
   <div class="ph">
-    <span class="ph-ico">✧</span>
-    <b>还没有选中产品</b>
-    <span class="ph-txt">左边按三步选完，命令、复制按钮和 .bat 下载就会出现在这张卡片里。</span>
-    <span class="ph-chips"><i>Windows · slmgr</i><i>Office · ospp</i><i>不确定就下完整版</i></span>
+    <div class="ph-screen">
+      <span class="ph-ico">✧</span>
+      <b>还没有选中产品</b>
+      <span class="ph-nosig">no signal</span>
+      <span class="ph-txt">左边按三步选完，命令、复制按钮和 .bat 下载就会出现在这台「电视」里。</span>
+      <span class="ph-chips"><i>Windows · slmgr</i><i>Office · ospp</i><i>不确定就下完整版</i></span>
+    </div>
+    <div class="tv-foot" aria-hidden="true">
+      <span class="tv-knob"></span><span class="tv-knob"></span>
+      <span class="tv-grill"></span>
+      <span class="tv-brand-mini">KMS</span>
+    </div>
+  </div>
+
+  <div class="side-extra">
+    <div class="se-head"><span class="se-dot"></span>信号源</div>
+    <div class="se-row"><span>KMS 主机</span><b id="tvHost">读取中…</b></div>
+    <div class="se-row"><span>连接方式</span><b>内网直连 · 不联网</b></div>
+    <div class="se-row"><span>适用系统</span><b>Windows / Office</b></div>
+    <div class="se-tips">
+      <span class="se-tip-t">三步上手</span>
+      <ol>
+        <li>选好产品，点「复制命令」</li>
+        <li>以管理员身份打开 PowerShell，粘贴执行</li>
+        <li>提示成功即完成，无需重启</li>
+      </ol>
+    </div>
   </div>
 
   </aside>
@@ -524,6 +692,18 @@ footer{
 </footer>
 
 <script src="config.js"></script>
+
+<script>
+/* 只做一件事：把 config.js 里的 KMS 主机显示到右侧「信号源」面板，不参与激活逻辑 */
+(function () {
+  var c = (typeof window !== 'undefined' && window.KMS_CONFIG) ? window.KMS_CONFIG : null;
+  var el = document.getElementById('tvHost');
+  if (!el) return;
+  var host = (c && c.host) ? String(c.host) : '';
+  el.textContent = host || '未配置';
+  if (!host) el.style.color = '#e08a3c';
+})();
+</script>
 
 <script>
 /* 字符 → GBK 码表：下载 .bat 时用，脚本生成，勿手改 */
